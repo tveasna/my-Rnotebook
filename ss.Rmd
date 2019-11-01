@@ -4,8 +4,536 @@ output: html_notebook
 ---
 
 
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE)
+```
+
+
 ```{r}
-plot(cars)
+library(readr)
+library(readxl)
+library(tidyverse)
+library(lubridate)
+library(janitor)
+library(knitr)
+library(extrafont)
+```
+
+```{r}
+# MY THEME
+  my_theme <- function() { 
+    theme_bw(base_size = 11, base_family = "Roboto Condensed") %+replace% 
+      theme(
+      plot.title = element_text(color = "black",face = "bold", size = 12),
+      plot.subtitle = element_text(color = "black",face = "italic",size = 10),
+      axis.text.x = element_text(color = "black",hjust = 0.5),
+      axis.text.y = element_text(color = "black",hjust = 1,vjust = 0.4),
+      axis.title = element_text(color = "black",size = 9),
+     plot.caption = element_text(color = "#AAAAAA",hjust = 1, size = 6)
+      )
+}
+```
+
+
+
+```{r}
+data <- read_csv("Dataset/allqvdata.csv")
+```
+
+```{r}
+# to convert variable `Mon-Year Delivered` to date format
+data$deliverydate <- dmy(paste("01-", data$`Mon-Year Delivered`,sep = ""))
+```
+
+
+```{r}
+library(readr)
+sfdata <- read_csv("Dataset/deliveredsep2019.csv")
+```
+
+
+
+```{r}
+sfdata$ActualDeliveryDate <- dmy(sfdata$ActualDeliveryDate)
+sfdata$SelectforVerification <- as.numeric(sfdata$SelectforVerification)
+
+```
+
+
+
+# SMSU3 (randomly selected by Salesforce from deliveries Mar-Sep 2019) 
+
+```{r}
+aa <- sfdata %>% 
+  select(ActualDeliveryDate,VerificationOutcome,SelectforVerification) %>% 
+  filter(VerificationOutcome != 0,VerificationOutcome != "Pending") %>% 
+  mutate(Deliverydate = as.Date(cut(ActualDeliveryDate,breaks = "month"))) %>%
+  group_by(VerificationOutcome,Deliverydate)
+```
+
+```{r}
+aa$VerificationOutcome <- as.factor(aa$VerificationOutcome)
+aa$SelectforVerification <- as.numeric(aa$SelectforVerification)
+```
+
+```{r}
+bb <- aa %>% 
+  group_by(VerificationOutcome,Deliverydate) %>% 
+  summarize(datacheck = sum(SelectforVerification))
+cc <- aggregate(datacheck ~ Deliverydate+VerificationOutcome,data = bb,sum)
+dd <- spread(cc, VerificationOutcome, datacheck) 
+dd[is.na(dd)] <- 0 # assign NA in the dataframe as zero
+dd$Deliverydate <- format(dd$Deliverydate,"%Y %b") # format data to yyyy mmm
+ee <- dd %>%   
+adorn_totals (c("row","col"))
+ee1 <- ee[,c(1,5, 4, 3, 2)] #change column position
+```
+
+```{r}
+#Change column name
+names(ee1)[names(ee1) == "Deliverydate"] <- "Delivery Date"
+names(ee1)[names(ee1) == "Total"] <- "Total Verification"
+```
+
+
+```{r}
+ee2 <- ee1 %>% 
+  mutate(VerifiedFalse_Rate = paste0(format(`Verified False`/(`Verified False`+`Verified True`)*100,digits = 0), "%")) %>% 
+  mutate(Unverified_Rate = paste0(format(`Unverified`/(`Unverified`+`Verified False`+`Verified True`)*100,digits = 0), "%"))
+# change column names
+names(ee2)[names(ee2) == "VerifiedFalse_Rate"] <- "Verified False Rate"
+names(ee2)[names(ee2) == "Unverified_Rate"] <- "Unverified Rate"
+kable(ee2,caption = " Verification Results",format.args = list(big.mark = ","), align = c("l"))
+```
+
+Note:   
+*Verified False Rate = Verified False / (Verified False + Verified True)*     
+*Unverified Rate = Unverified / (Unverified + Verified False + Verified True)*
+
+
+# Verification rate by Sales Channel
+
+
+```{r}
+bb <- sfdata %>% 
+  group_by(VerificationOutcome,SalesChannel) %>% 
+  summarize(datacheck = sum(SelectforVerification))
+cc <- aggregate(datacheck ~ SalesChannel+VerificationOutcome,data = bb,sum)
+dd <- spread(cc, VerificationOutcome, datacheck) 
+dd[is.na(dd)] <- 0 # assign NA in the dataframe as zero
+ee <- dd %>%   
+adorn_totals (c("row","col"))
+ee1 <- ee[,c(1,5, 4, 3, 2)] #change column position
+```
+
+```{r}
+#Change column name
+names(ee1)[names(ee1) == "Deliverydate"] <- "Delivery Date"
+names(ee1)[names(ee1) == "Total"] <- "Total Verification"
+```
+
+
+```{r}
+ee2 <- ee1 %>% 
+  mutate(VerifiedFalse_Rate = paste0(format(`Verified False`/(`Verified False`+`Verified True`)*100,digits = 0), "%")) %>% 
+  mutate(Unverified_Rate = paste0(format(`Unverified`/(`Unverified`+`Verified False`+`Verified True`)*100,digits = 0), "%"))
+# change column names
+names(ee2)[names(ee2) == "VerifiedFalse_Rate"] <- "Verified False Rate"
+names(ee2)[names(ee2) == "Unverified_Rate"] <- "Unverified Rate"
+names(ee2)[names(ee2) == "SalesChannel"] <- "Sales Channel"
+kable(ee2,caption = " Verification Results",format.args = list(big.mark = ","),align = c("l"))
+```
+
+Note:   
+*Verified False Rate = Verified False / (Verified False + Verified True)*     
+*Unverified Rate = Unverified / (Unverified + Verified False + Verified True)*
+
+
+# Types of mis-reporting
+
+```{r}
+enddate_mon <- format(max(sfdata$ActualDeliveryDate),"%b %Y") #end date of smsu2.0
+startdate_mon <- format(min(sfdata$ActualDeliveryDate),"%b %Y") #start date of smsu2.0
+#set start and end date of smsu for putting at titles of chart
+mon_period <- paste0("Types of mis-reporting", " ", "(" , startdate_mon,"-", enddate_mon, ")")
+```
+
+```{r}
+missreport <- sfdata %>% 
+select(VerifiedFalseCategory,
+         SalesChannel,SelectforVerification) %>%
+  #filter(`ST_LBOdeliveries` != "NA") %>% #filter out NA from 'ST-LBO deliveries'
+  filter(VerifiedFalseCategory != "Unverified") %>% 
+group_by(VerifiedFalseCategory) %>%
+  summarise(Total = sum(SelectforVerification,na.rm = TRUE)) %>% 
+mutate(percent = round(Total/sum(Total)*100),label = paste0(Total," ","(",percent,"%",(")")))
+totalcases <- paste0("Total cases: ",sum(missreport$Total))
+missreport$VerifiedFalseCategory <- reorder(missreport$VerifiedFalseCategory, missreport$Total)
+ggplot(missreport,aes(x = VerifiedFalseCategory,y = Total))+ geom_bar(stat = "identity",fill="#42ffe6")+
+  theme(text = element_text(family="Roboto Condensed"))+
+  geom_text(aes(label=label, hjust = - 0.1,family="Roboto Condensed"),color="black",size=3)+ 
+  ggtitle(mon_period,subtitle = totalcases)+ 
+  labs(x="", y="Number of mis-reporting")+
+  scale_y_continuous(breaks=seq(0,40,10),limit = c(0, 40))+
+   coord_flip()+
+  my_theme()
+```
+
+
+\newpage
+
+# SMSU3 (randomly selected from deliveries Jul 2018 to Sep 2019)
+
+```{r}
+datasmsu3 <- data %>% 
+filter(deliverydate >= ymd("2018-06-30"))
+```
+
+```{r}
+length (datasmsu3$`Mon-Year Delivered`)
+```
+
+
+```{r}
+a <- datasmsu3 %>% 
+select(`Total selected data`,`Type of cases`,
+         `ST_LBOdeliveries`,`Deliveries deleted`) %>%
+  filter(`ST_LBOdeliveries` != "NA") %>% #filter out NA from 'ST-LBO deliveries'
+group_by(`ST_LBOdeliveries`) %>%
+summarise(TotalSelected = sum(`Total selected data`,na.rm = TRUE))
+```
+
+```{r}
+b <- datasmsu3 %>% 
+select(`Total selected data`,`Type of cases`,
+         `ST_LBOdeliveries`,`Deliveries deleted`) %>%
+   filter(`ST_LBOdeliveries` != "NA") %>% #filter out NA from 'ST-LBO deliveries'
+   filter(`Type of cases` != "unverified") %>% 
+group_by(`ST_LBOdeliveries`) %>%
+  summarise(VerifiedFalse = sum(`Deliveries deleted`,na.rm = TRUE))
+```
+
+
+```{r}
+c <- datasmsu3 %>% 
+select(`Total selected data`,`Type of cases`,
+         `ST_LBOdeliveries`,`Deliveries deleted`) %>%
+  filter(`Type of cases` == "unverified") %>% 
+   filter(`ST_LBOdeliveries` != "NA") %>% #filter out NA from 'ST-LBO deliveries'
+group_by(`ST_LBOdeliveries`) %>%
+  summarise(Unverified = sum(`Deliveries deleted`,na.rm = TRUE))
+```
+
+
+```{r, message= FALSE}
+d <- right_join(a,b,by = "ST_LBOdeliveries")
+```
+
+```{r}
+e <- right_join(d,c, by = "ST_LBOdeliveries")
+```
+
+
+```{r}
+f <- data.frame(ST_LBOdeliveries = "Total" ,  TotalSelected = sum(e$TotalSelected), VerifiedFalse = sum(e$VerifiedFalse),Unverified = sum(e$Unverified))
+```
+
+```{r}
+g <- rbind(e,f)
+```
+
+
+```{r}
+h <- g %>% 
+  mutate(VerifiedTrue = TotalSelected - (VerifiedFalse + Unverified))
+i <- h[,c(1,2,5,3,4)] #change column position
+```
+
+```{r}
+j <- i %>% 
+  mutate(VerifiedFalseRate = paste0(format(VerifiedFalse/(VerifiedTrue + VerifiedFalse)*100,digits = 0),"%"),
+UnverifiedRate = paste0(format(Unverified/(VerifiedTrue + VerifiedFalse + Unverified)*100,digits = 0), "%"))
+
+```
+
+
+```{r}
+# change column names
+names(j)[names(j) == "ST_LBOdeliveries"] <- "SA/LBODeliveries"
+names(j)[names(j) == "TotalSelected"] <- "Total Verification"
+names(j)[names(j) == "VerifiedTrue"] <- "Verified True"
+names(j)[names(j) == "VerifiedFalse"] <- "Verified False"
+names(j)[names(j) == "VerifiedFalseRate"] <- "Verified False Rate"
+names(j)[names(j) == "UnverifiedRate"] <- "Unverified Rate"
+# add total to rows of the table
+kable(j,caption = " Verification Results" ,"pandoc",format.args = list(big.mark = ","),align = c("l"))
+```
+
+Note:   
+*Verified False Rate = Verified False / (Verified False + Verified True)*     
+*Unverified Rate = Unverified / (Unverified + Verified False + Verified True)*
+
+
+# Types of mis-reporting
+
+```{r}
+enddate_smsu3 <- format(max(datasmsu3$deliverydate),"%b %Y") #end date of smsu3.0
+startdate_smsu3 <- format(min(datasmsu3$deliverydate),"%b %Y") #start date of smsu3.0
+#set start and end date of smsu for putting at titles of chart
+smsu3_period <- paste0("Types of mis-reporting", " ", "(" , startdate_smsu3,"-", enddate_smsu3, ")")
+```
+
+```{r}
+missreport <- datasmsu3 %>% 
+select(`Type of cases`,
+         `ST_LBOdeliveries`,`Deliveries deleted`) %>%
+   filter(`ST_LBOdeliveries` != "NA") %>% #filter out NA from 'ST-LBO deliveries'
+  filter(`Type of cases` != "unverified") %>% 
+group_by(`Type of cases`) %>%
+  summarise(Total = sum(`Deliveries deleted`,na.rm = TRUE)) %>% 
+mutate(percent = round(Total/sum(Total)*100),label = paste0(Total," ","(",percent,"%",(")")))
+totalcases <- paste0("Total cases: ",sum(missreport$Total))
+missreport$`Type of cases` <- reorder(missreport$`Type of cases`, missreport$Total)
+ggplot(missreport,aes(x = `Type of cases`,y = Total))+ geom_bar(stat = "identity",fill="#42ffe6")+
+  theme(text = element_text(family="Roboto Condensed"))+
+  geom_text(aes(label=label, hjust = - 0.1,family="Roboto Condensed"),color="black",size=3)+ 
+  ggtitle(smsu3_period,subtitle = totalcases)+ 
+  labs(x="", y="Number of mis-reporting")+
+  scale_y_continuous(breaks=seq(0,60,10),limit = c(0, 60))+
+   coord_flip()+
+  my_theme()
+```
+
+\newpage
+# SMSU2.0
+
+```{r}
+datasmsu2 <- data %>% 
+filter(deliverydate <= ymd("2018-06-30"))
+```
+
+```{r}
+a <- datasmsu2 %>% 
+select(`Total selected data`,`Type of cases`,deliverydate,
+         `ST_LBOdeliveries`,`Deliveries deleted`) %>%
+  filter(`ST_LBOdeliveries` != "NA") %>% #filter out NA from 'ST-LBO deliveries'
+  
+group_by(`ST_LBOdeliveries`) %>%
+  summarise(TotalSelected = sum(`Total selected data`,na.rm = TRUE))
+```
+
+```{r}
+b <- datasmsu2 %>% 
+select(`Total selected data`,`Type of cases`,
+         `ST_LBOdeliveries`,`Deliveries deleted`) %>%
+   filter(`ST_LBOdeliveries` != "NA") %>% #filter out NA from 'ST-LBO deliveries'
+   filter(`Type of cases` != "unverified") %>% 
+group_by(`ST_LBOdeliveries`) %>%
+  summarise(VerifiedFalse = sum(`Deliveries deleted`,na.rm = TRUE))
+```
+
+
+```{r}
+c <- datasmsu2 %>% 
+select(`Total selected data`,`Type of cases`,`Mon-Year Delivered`,
+         `ST_LBOdeliveries`,`Deliveries deleted`) %>%
+  filter(`Type of cases` == "unverified") %>% 
+   filter(`ST_LBOdeliveries` != "NA") %>% #filter out NA from 'ST-LBO deliveries'
+group_by(`ST_LBOdeliveries`) %>%
+  summarise(Unverified = sum(`Deliveries deleted`,na.rm = TRUE))
+```
+
+
+```{r, message= FALSE}
+d <- right_join(a,b,by = "ST_LBOdeliveries")
+```
+
+```{r}
+e <- right_join(d,c, by = "ST_LBOdeliveries")
+```
+
+
+```{r}
+f <- data.frame(ST_LBOdeliveries = "Total" ,  TotalSelected = sum(e$TotalSelected), VerifiedFalse = sum(e$VerifiedFalse),Unverified = sum(e$Unverified))
+```
+
+```{r}
+g <- rbind(e,f)
+```
+
+
+```{r}
+h <- g %>% 
+  mutate(VerifiedTrue = TotalSelected - (VerifiedFalse + Unverified))
+i <- h[,c(1,2,5,3,4)] #change column position
+```
+
+```{r}
+j <- i %>% 
+  mutate(VerifiedFalseRate = paste0(format(VerifiedFalse/(VerifiedTrue + VerifiedFalse)*100,digits = 0),"%"),
+UnverifiedRate = paste0(format(Unverified/(VerifiedTrue + VerifiedFalse + Unverified)*100,digits = 0), "%"))
+```
+
+
+```{r}
+# change column names
+names(j)[names(j) == "ST_LBOdeliveries"] <- "SA/LBODeliveries"
+names(j)[names(j) == "TotalSelected"] <- "Total Verification"
+names(j)[names(j) == "VerifiedTrue"] <- "Verified True"
+names(j)[names(j) == "VerifiedFalse"] <- "Verified False"
+names(j)[names(j) == "VerifiedFalseRate"] <- "Verified False Rate"
+names(j)[names(j) == "UnverifiedRate"] <- "Unverified Rate"
+# add total to rows of the table
+kable(j, caption = " Verification Results", "pandoc",format.args = list(big.mark = ","),align = c("l"))
+```
+
+Note:   
+*Verified False Rate = Verified False / (Verified False + Verified True)*     
+*Unverified Rate = Unverified / (Unverified + Verified False + Verified True)*
+
+
+# Types of mis-reporting
+
+```{r}
+enddate_smsu2 <- format(max(datasmsu2$deliverydate),"%b %Y") #end date of smsu2.0
+startdate_smsu2 <- format(min(datasmsu2$deliverydate),"%b %Y") #start date of smsu2.0
+#set start and end date of smsu for putting at titles of chart
+smsu2_period <- paste0("Types of mis-reporting", " ", "(" , startdate_smsu2,"-", enddate_smsu2, ")")
+```
+
+```{r}
+missreport <- datasmsu2 %>% 
+select(`Type of cases`,
+         `ST_LBOdeliveries`,`Deliveries deleted`) %>%
+   filter(`ST_LBOdeliveries` != "NA") %>% #filter out NA from 'ST-LBO deliveries'
+  filter(`Type of cases` != "unverified") %>% 
+group_by(`Type of cases`) %>%
+  summarise(Total = sum(`Deliveries deleted`,na.rm = TRUE)) %>% 
+mutate(percent = round(Total/sum(Total)*100),label = paste0(Total," ","(",percent,"%",(")")))
+totalcases <- paste0("Total cases: ",sum(missreport$Total))
+missreport$`Type of cases` <- reorder(missreport$`Type of cases`, missreport$Total)
+ggplot(missreport,aes(x = `Type of cases`,y = Total))+ geom_bar(stat = "identity",fill="#42ffe6")+
+  theme(text = element_text(family="Roboto Condensed"))+
+  geom_text(aes(label=label, hjust = - 0.1,family="Roboto Condensed"),color="black",size=3)+ 
+  ggtitle(smsu2_period,subtitle = totalcases)+ 
+  labs(x="", y="Number of mis-reporting")+
+  scale_y_continuous(breaks=seq(0,500,100),limit = c(0, 500))+
+   coord_flip()+
+  my_theme()
+```
+
+\newpage
+
+# All SMSU (data from customer survey, spot check and Salesforce random)
+
+
+```{r}
+a <- data %>% 
+select(`Total selected data`,`Type of cases`,
+         `ST_LBOdeliveries`,`Deliveries deleted`) %>%
+   filter(`ST_LBOdeliveries` != "NA") %>% #filter out NA from 'ST-LBO deliveries'
+group_by(`ST_LBOdeliveries`) %>%
+  summarise(TotalSelected = sum(`Total selected data`,na.rm = TRUE))
+```
+
+```{r}
+b <- data %>% 
+select(`Total selected data`,`Type of cases`,
+         `ST_LBOdeliveries`,`Deliveries deleted`) %>%
+   filter(`ST_LBOdeliveries` != "NA") %>% #filter out NA from 'ST-LBO deliveries'
+   filter(`Type of cases` != "unverified") %>% 
+group_by(`ST_LBOdeliveries`) %>%
+  summarise(VerifiedFalse = sum(`Deliveries deleted`,na.rm = TRUE))
+```
+
+
+```{r}
+c <- data %>% 
+select(`Total selected data`,`Type of cases`,
+         `ST_LBOdeliveries`,`Deliveries deleted`) %>%
+  filter(`Type of cases` == "unverified") %>% 
+   filter(`ST_LBOdeliveries` != "NA") %>% #filter out NA from 'ST-LBO deliveries'
+group_by(`ST_LBOdeliveries`) %>%
+  summarise(Unverified = sum(`Deliveries deleted`,na.rm = TRUE))
+```
+
+
+```{r, message= FALSE}
+d <- right_join(a,b,by = "ST_LBOdeliveries")
+```
+
+```{r}
+e <- right_join(d,c, by = "ST_LBOdeliveries")
+```
+
+
+```{r}
+f <- data.frame(ST_LBOdeliveries = "Total" ,  TotalSelected = sum(e$TotalSelected), VerifiedFalse = sum(e$VerifiedFalse),Unverified = sum(e$Unverified))
+```
+
+```{r}
+g <- rbind(e,f)
+```
+
+
+```{r}
+h <- g %>% 
+  mutate(VerifiedTrue = TotalSelected - (VerifiedFalse + Unverified))
+i <- h[,c(1,2,5,3,4)] #change column position
+```
+
+```{r}
+j <- i %>% 
+mutate(VerifiedFalseRate = paste0(format(VerifiedFalse/(VerifiedTrue + VerifiedFalse)*100,digits = 0),"%"),
+UnverifiedRate = paste0(format(Unverified/(VerifiedTrue + VerifiedFalse + Unverified)*100,digits = 0), "%"))
+```
+
+
+```{r}
+# change column names
+names(j)[names(j) == "ST_LBOdeliveries"] <- "SA/LBODeliveries"
+names(j)[names(j) == "TotalSelected"] <- "Total Verification"
+names(j)[names(j) == "VerifiedTrue"] <- "Verified True"
+names(j)[names(j) == "VerifiedFalse"] <- "Verified False"
+names(j)[names(j) == "VerifiedFalseRate"] <- "Verified False Rate"
+names(j)[names(j) == "UnverifiedRate"] <- "Unverified Rate"
+# add total to rows of the table
+kable(j, caption = "Verification Results", format.args = list(big.mark = ","),align = c("l"))
+```
+
+Note:   
+*Verified False Rate = Verified False / (Verified False + Verified True)*     
+*Unverified Rate = Unverified / (Unverified + Verified False + Verified True)*
+
+# Types of mis-reporting
+
+```{r}
+#set period for SMSU3.0
+enddate <- format(max(data$deliverydate),"%b %Y") #end date
+startdate <- format(min(data$deliverydate),"%b %Y") #start dete
+period <- paste0("Types of mis-reporting", " ", "(" , startdate,"-", enddate, ")")
+```
+
+
+```{r}
+missreport <- data %>% 
+select(`Type of cases`,
+         `ST_LBOdeliveries`,`Deliveries deleted`) %>%
+   filter(`ST_LBOdeliveries` != "NA") %>% #filter out NA from 'ST-LBO deliveries'
+  filter(`Type of cases` != "unverified") %>%
+group_by(`Type of cases`) %>%
+  summarise(Total = sum(`Deliveries deleted`,na.rm = TRUE)) %>% 
+mutate(percent = round(Total/sum(Total)*100),label = paste0(Total," ","(",percent,"%",(")")))
+totalcases <- paste0("Total cases: ",sum(missreport$Total))
+missreport$`Type of cases` <- reorder(missreport$`Type of cases`, missreport$Total)
+ggplot(missreport,aes(x = `Type of cases`,y = Total))+ geom_bar(stat = "identity",fill="#42ffe6")+
+  theme(text=element_text(family="Roboto Condensed"))+
+  geom_text(aes(label=label, hjust = - 0.1,family="Roboto Condensed"),color="black",size=3)+ 
+  ggtitle(period,subtitle = totalcases)+ 
+  labs(x="", y="Number of mis-reporting")+
+  scale_y_continuous(breaks = seq(0,550,100),limit = c(0, 550))+
+   coord_flip()+
+  my_theme()
 ```
 
 

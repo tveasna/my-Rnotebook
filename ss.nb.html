@@ -1749,20 +1749,672 @@ summary {
 
 
 <!-- rnb-text-begin -->
-<p>This is an <a href="http://rmarkdown.rstudio.com">R Markdown</a> Notebook. When you execute code within the notebook, the results appear beneath the code.</p>
+<!-- rnb-text-end -->
+<!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucGxvdChjYXJzKVxuYGBgIn0= -->
-<pre class="r"><code>plot(cars)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShyZWFkcilcbmxpYnJhcnkocmVhZHhsKVxubGlicmFyeSh0aWR5dmVyc2UpXG5saWJyYXJ5KGx1YnJpZGF0ZSlcbmxpYnJhcnkoamFuaXRvcilcbmxpYnJhcnkoa25pdHIpXG5saWJyYXJ5KGV4dHJhZm9udClcbmBgYCJ9 -->
+<pre class="r"><code>library(readr)
+library(readxl)
+library(tidyverse)
+library(lubridate)
+library(janitor)
+library(knitr)
+library(extrafont)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-plot-begin eyJjb25kaXRpb25zIjpbXSwiaGVpZ2h0IjoyNzcuNTAzMSwic2l6ZV9iZWhhdmlvciI6MCwid2lkdGgiOjQ0OX0= -->
-<p><img src="data:image/png;base64,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" /></p>
-<!-- rnb-plot-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBNWSBUSEVNRVxuICBteV90aGVtZSA8LSBmdW5jdGlvbigpIHsgXG4gICAgdGhlbWVfYncoYmFzZV9zaXplID0gMTEsIGJhc2VfZmFtaWx5ID0gXCJSb2JvdG8gQ29uZGVuc2VkXCIpICUrcmVwbGFjZSUgXG4gICAgICB0aGVtZShcbiAgICAgIHBsb3QudGl0bGUgPSBlbGVtZW50X3RleHQoY29sb3IgPSBcImJsYWNrXCIsZmFjZSA9IFwiYm9sZFwiLCBzaXplID0gMTIpLFxuICAgICAgcGxvdC5zdWJ0aXRsZSA9IGVsZW1lbnRfdGV4dChjb2xvciA9IFwiYmxhY2tcIixmYWNlID0gXCJpdGFsaWNcIixzaXplID0gMTApLFxuICAgICAgYXhpcy50ZXh0LnggPSBlbGVtZW50X3RleHQoY29sb3IgPSBcImJsYWNrXCIsaGp1c3QgPSAwLjUpLFxuICAgICAgYXhpcy50ZXh0LnkgPSBlbGVtZW50X3RleHQoY29sb3IgPSBcImJsYWNrXCIsaGp1c3QgPSAxLHZqdXN0ID0gMC40KSxcbiAgICAgIGF4aXMudGl0bGUgPSBlbGVtZW50X3RleHQoY29sb3IgPSBcImJsYWNrXCIsc2l6ZSA9IDkpLFxuICAgICBwbG90LmNhcHRpb24gPSBlbGVtZW50X3RleHQoY29sb3IgPSBcIiNBQUFBQUFcIixoanVzdCA9IDEsIHNpemUgPSA2KVxuICAgICAgKVxufVxuYGBgIn0= -->
+<pre class="r"><code># MY THEME
+  my_theme &lt;- function() { 
+    theme_bw(base_size = 11, base_family = &quot;Roboto Condensed&quot;) %+replace% 
+      theme(
+      plot.title = element_text(color = &quot;black&quot;,face = &quot;bold&quot;, size = 12),
+      plot.subtitle = element_text(color = &quot;black&quot;,face = &quot;italic&quot;,size = 10),
+      axis.text.x = element_text(color = &quot;black&quot;,hjust = 0.5),
+      axis.text.y = element_text(color = &quot;black&quot;,hjust = 1,vjust = 0.4),
+      axis.title = element_text(color = &quot;black&quot;,size = 9),
+     plot.caption = element_text(color = &quot;#AAAAAA&quot;,hjust = 1, size = 6)
+      )
+}</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGF0YSA8LSByZWFkX2NzdihcIkRhdGFzZXQvYWxscXZkYXRhLmNzdlwiKVxuYGBgIn0= -->
+<pre class="r"><code>data &lt;- read_csv(&quot;Dataset/allqvdata.csv&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyB0byBjb252ZXJ0IHZhcmlhYmxlIGBNb24tWWVhciBEZWxpdmVyZWRgIHRvIGRhdGUgZm9ybWF0XG5kYXRhJGRlbGl2ZXJ5ZGF0ZSA8LSBkbXkocGFzdGUoXCIwMS1cIiwgZGF0YSRgTW9uLVllYXIgRGVsaXZlcmVkYCxzZXAgPSBcIlwiKSlcbmBgYCJ9 -->
+<pre class="r"><code># to convert variable `Mon-Year Delivered` to date format
+data$deliverydate &lt;- dmy(paste(&quot;01-&quot;, data$`Mon-Year Delivered`,sep = &quot;&quot;))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShyZWFkcilcbnNmZGF0YSA8LSByZWFkX2NzdihcIkRhdGFzZXQvZGVsaXZlcmVkc2VwMjAxOS5jc3ZcIilcbmBgYCJ9 -->
+<pre class="r"><code>library(readr)
+sfdata &lt;- read_csv(&quot;Dataset/deliveredsep2019.csv&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2ZkYXRhJEFjdHVhbERlbGl2ZXJ5RGF0ZSA8LSBkbXkoc2ZkYXRhJEFjdHVhbERlbGl2ZXJ5RGF0ZSlcbnNmZGF0YSRTZWxlY3Rmb3JWZXJpZmljYXRpb24gPC0gYXMubnVtZXJpYyhzZmRhdGEkU2VsZWN0Zm9yVmVyaWZpY2F0aW9uKVxuXG5gYGAifQ== -->
+<pre class="r"><code>sfdata$ActualDeliveryDate &lt;- dmy(sfdata$ActualDeliveryDate)
+sfdata$SelectforVerification &lt;- as.numeric(sfdata$SelectforVerification)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<div id="smsu3-randomly-selected-by-salesforce-from-deliveries-mar-sep-2019" class="section level1">
+<h1>SMSU3 (randomly selected by Salesforce from deliveries Mar-Sep 2019)</h1>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYWEgPC0gc2ZkYXRhICU+JSBcbiAgc2VsZWN0KEFjdHVhbERlbGl2ZXJ5RGF0ZSxWZXJpZmljYXRpb25PdXRjb21lLFNlbGVjdGZvclZlcmlmaWNhdGlvbikgJT4lIFxuICBmaWx0ZXIoVmVyaWZpY2F0aW9uT3V0Y29tZSAhPSAwLFZlcmlmaWNhdGlvbk91dGNvbWUgIT0gXCJQZW5kaW5nXCIpICU+JSBcbiAgbXV0YXRlKERlbGl2ZXJ5ZGF0ZSA9IGFzLkRhdGUoY3V0KEFjdHVhbERlbGl2ZXJ5RGF0ZSxicmVha3MgPSBcIm1vbnRoXCIpKSkgJT4lXG4gIGdyb3VwX2J5KFZlcmlmaWNhdGlvbk91dGNvbWUsRGVsaXZlcnlkYXRlKVxuYGBgIn0= -->
+<pre class="r"><code>aa &lt;- sfdata %&gt;% 
+  select(ActualDeliveryDate,VerificationOutcome,SelectforVerification) %&gt;% 
+  filter(VerificationOutcome != 0,VerificationOutcome != &quot;Pending&quot;) %&gt;% 
+  mutate(Deliverydate = as.Date(cut(ActualDeliveryDate,breaks = &quot;month&quot;))) %&gt;%
+  group_by(VerificationOutcome,Deliverydate)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYWEkVmVyaWZpY2F0aW9uT3V0Y29tZSA8LSBhcy5mYWN0b3IoYWEkVmVyaWZpY2F0aW9uT3V0Y29tZSlcbmFhJFNlbGVjdGZvclZlcmlmaWNhdGlvbiA8LSBhcy5udW1lcmljKGFhJFNlbGVjdGZvclZlcmlmaWNhdGlvbilcbmBgYCJ9 -->
+<pre class="r"><code>aa$VerificationOutcome &lt;- as.factor(aa$VerificationOutcome)
+aa$SelectforVerification &lt;- as.numeric(aa$SelectforVerification)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYmIgPC0gYWEgJT4lIFxuICBncm91cF9ieShWZXJpZmljYXRpb25PdXRjb21lLERlbGl2ZXJ5ZGF0ZSkgJT4lIFxuICBzdW1tYXJpemUoZGF0YWNoZWNrID0gc3VtKFNlbGVjdGZvclZlcmlmaWNhdGlvbikpXG5jYyA8LSBhZ2dyZWdhdGUoZGF0YWNoZWNrIH4gRGVsaXZlcnlkYXRlK1ZlcmlmaWNhdGlvbk91dGNvbWUsZGF0YSA9IGJiLHN1bSlcbmRkIDwtIHNwcmVhZChjYywgVmVyaWZpY2F0aW9uT3V0Y29tZSwgZGF0YWNoZWNrKSBcbmRkW2lzLm5hKGRkKV0gPC0gMCAjIGFzc2lnbiBOQSBpbiB0aGUgZGF0YWZyYW1lIGFzIHplcm9cbmRkJERlbGl2ZXJ5ZGF0ZSA8LSBmb3JtYXQoZGQkRGVsaXZlcnlkYXRlLFwiJVkgJWJcIikgIyBmb3JtYXQgZGF0YSB0byB5eXl5IG1tbVxuZWUgPC0gZGQgJT4lICAgXG5hZG9ybl90b3RhbHMgKGMoXCJyb3dcIixcImNvbFwiKSlcbmVlMSA8LSBlZVssYygxLDUsIDQsIDMsIDIpXSAjY2hhbmdlIGNvbHVtbiBwb3NpdGlvblxuYGBgIn0= -->
+<pre class="r"><code>bb &lt;- aa %&gt;% 
+  group_by(VerificationOutcome,Deliverydate) %&gt;% 
+  summarize(datacheck = sum(SelectforVerification))
+cc &lt;- aggregate(datacheck ~ Deliverydate+VerificationOutcome,data = bb,sum)
+dd &lt;- spread(cc, VerificationOutcome, datacheck) 
+dd[is.na(dd)] &lt;- 0 # assign NA in the dataframe as zero
+dd$Deliverydate &lt;- format(dd$Deliverydate,&quot;%Y %b&quot;) # format data to yyyy mmm
+ee &lt;- dd %&gt;%   
+adorn_totals (c(&quot;row&quot;,&quot;col&quot;))
+ee1 &lt;- ee[,c(1,5, 4, 3, 2)] #change column position</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI0NoYW5nZSBjb2x1bW4gbmFtZVxubmFtZXMoZWUxKVtuYW1lcyhlZTEpID09IFwiRGVsaXZlcnlkYXRlXCJdIDwtIFwiRGVsaXZlcnkgRGF0ZVwiXG5uYW1lcyhlZTEpW25hbWVzKGVlMSkgPT0gXCJUb3RhbFwiXSA8LSBcIlRvdGFsIFZlcmlmaWNhdGlvblwiXG5gYGAifQ== -->
+<pre class="r"><code>#Change column name
+names(ee1)[names(ee1) == &quot;Deliverydate&quot;] &lt;- &quot;Delivery Date&quot;
+names(ee1)[names(ee1) == &quot;Total&quot;] &lt;- &quot;Total Verification&quot;</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZWUyIDwtIGVlMSAlPiUgXG4gIG11dGF0ZShWZXJpZmllZEZhbHNlX1JhdGUgPSBwYXN0ZTAoZm9ybWF0KGBWZXJpZmllZCBGYWxzZWAvKGBWZXJpZmllZCBGYWxzZWArYFZlcmlmaWVkIFRydWVgKSoxMDAsZGlnaXRzID0gMCksIFwiJVwiKSkgJT4lIFxuICBtdXRhdGUoVW52ZXJpZmllZF9SYXRlID0gcGFzdGUwKGZvcm1hdChgVW52ZXJpZmllZGAvKGBVbnZlcmlmaWVkYCtgVmVyaWZpZWQgRmFsc2VgK2BWZXJpZmllZCBUcnVlYCkqMTAwLGRpZ2l0cyA9IDApLCBcIiVcIikpXG4jIGNoYW5nZSBjb2x1bW4gbmFtZXNcbm5hbWVzKGVlMilbbmFtZXMoZWUyKSA9PSBcIlZlcmlmaWVkRmFsc2VfUmF0ZVwiXSA8LSBcIlZlcmlmaWVkIEZhbHNlIFJhdGVcIlxubmFtZXMoZWUyKVtuYW1lcyhlZTIpID09IFwiVW52ZXJpZmllZF9SYXRlXCJdIDwtIFwiVW52ZXJpZmllZCBSYXRlXCJcbmthYmxlKGVlMixjYXB0aW9uID0gXCIgVmVyaWZpY2F0aW9uIFJlc3VsdHNcIixmb3JtYXQuYXJncyA9IGxpc3QoYmlnLm1hcmsgPSBcIixcIiksIGFsaWduID0gYyhcImxcIikpXG5gYGAifQ== -->
+<pre class="r"><code>ee2 &lt;- ee1 %&gt;% 
+  mutate(VerifiedFalse_Rate = paste0(format(`Verified False`/(`Verified False`+`Verified True`)*100,digits = 0), &quot;%&quot;)) %&gt;% 
+  mutate(Unverified_Rate = paste0(format(`Unverified`/(`Unverified`+`Verified False`+`Verified True`)*100,digits = 0), &quot;%&quot;))
+# change column names
+names(ee2)[names(ee2) == &quot;VerifiedFalse_Rate&quot;] &lt;- &quot;Verified False Rate&quot;
+names(ee2)[names(ee2) == &quot;Unverified_Rate&quot;] &lt;- &quot;Unverified Rate&quot;
+kable(ee2,caption = &quot; Verification Results&quot;,format.args = list(big.mark = &quot;,&quot;), align = c(&quot;l&quot;))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Note:<br />
+<em>Verified False Rate = Verified False / (Verified False + Verified True)</em><br />
+<em>Unverified Rate = Unverified / (Unverified + Verified False + Verified True)</em></p>
+</div>
+<div id="verification-rate-by-sales-channel" class="section level1">
+<h1>Verification rate by Sales Channel</h1>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYmIgPC0gc2ZkYXRhICU+JSBcbiAgZ3JvdXBfYnkoVmVyaWZpY2F0aW9uT3V0Y29tZSxTYWxlc0NoYW5uZWwpICU+JSBcbiAgc3VtbWFyaXplKGRhdGFjaGVjayA9IHN1bShTZWxlY3Rmb3JWZXJpZmljYXRpb24pKVxuY2MgPC0gYWdncmVnYXRlKGRhdGFjaGVjayB+IFNhbGVzQ2hhbm5lbCtWZXJpZmljYXRpb25PdXRjb21lLGRhdGEgPSBiYixzdW0pXG5kZCA8LSBzcHJlYWQoY2MsIFZlcmlmaWNhdGlvbk91dGNvbWUsIGRhdGFjaGVjaykgXG5kZFtpcy5uYShkZCldIDwtIDAgIyBhc3NpZ24gTkEgaW4gdGhlIGRhdGFmcmFtZSBhcyB6ZXJvXG5lZSA8LSBkZCAlPiUgICBcbmFkb3JuX3RvdGFscyAoYyhcInJvd1wiLFwiY29sXCIpKVxuZWUxIDwtIGVlWyxjKDEsNSwgNCwgMywgMildICNjaGFuZ2UgY29sdW1uIHBvc2l0aW9uXG5gYGAifQ== -->
+<pre class="r"><code>bb &lt;- sfdata %&gt;% 
+  group_by(VerificationOutcome,SalesChannel) %&gt;% 
+  summarize(datacheck = sum(SelectforVerification))
+cc &lt;- aggregate(datacheck ~ SalesChannel+VerificationOutcome,data = bb,sum)
+dd &lt;- spread(cc, VerificationOutcome, datacheck) 
+dd[is.na(dd)] &lt;- 0 # assign NA in the dataframe as zero
+ee &lt;- dd %&gt;%   
+adorn_totals (c(&quot;row&quot;,&quot;col&quot;))
+ee1 &lt;- ee[,c(1,5, 4, 3, 2)] #change column position</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI0NoYW5nZSBjb2x1bW4gbmFtZVxubmFtZXMoZWUxKVtuYW1lcyhlZTEpID09IFwiRGVsaXZlcnlkYXRlXCJdIDwtIFwiRGVsaXZlcnkgRGF0ZVwiXG5uYW1lcyhlZTEpW25hbWVzKGVlMSkgPT0gXCJUb3RhbFwiXSA8LSBcIlRvdGFsIFZlcmlmaWNhdGlvblwiXG5gYGAifQ== -->
+<pre class="r"><code>#Change column name
+names(ee1)[names(ee1) == &quot;Deliverydate&quot;] &lt;- &quot;Delivery Date&quot;
+names(ee1)[names(ee1) == &quot;Total&quot;] &lt;- &quot;Total Verification&quot;</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZWUyIDwtIGVlMSAlPiUgXG4gIG11dGF0ZShWZXJpZmllZEZhbHNlX1JhdGUgPSBwYXN0ZTAoZm9ybWF0KGBWZXJpZmllZCBGYWxzZWAvKGBWZXJpZmllZCBGYWxzZWArYFZlcmlmaWVkIFRydWVgKSoxMDAsZGlnaXRzID0gMCksIFwiJVwiKSkgJT4lIFxuICBtdXRhdGUoVW52ZXJpZmllZF9SYXRlID0gcGFzdGUwKGZvcm1hdChgVW52ZXJpZmllZGAvKGBVbnZlcmlmaWVkYCtgVmVyaWZpZWQgRmFsc2VgK2BWZXJpZmllZCBUcnVlYCkqMTAwLGRpZ2l0cyA9IDApLCBcIiVcIikpXG4jIGNoYW5nZSBjb2x1bW4gbmFtZXNcbm5hbWVzKGVlMilbbmFtZXMoZWUyKSA9PSBcIlZlcmlmaWVkRmFsc2VfUmF0ZVwiXSA8LSBcIlZlcmlmaWVkIEZhbHNlIFJhdGVcIlxubmFtZXMoZWUyKVtuYW1lcyhlZTIpID09IFwiVW52ZXJpZmllZF9SYXRlXCJdIDwtIFwiVW52ZXJpZmllZCBSYXRlXCJcbm5hbWVzKGVlMilbbmFtZXMoZWUyKSA9PSBcIlNhbGVzQ2hhbm5lbFwiXSA8LSBcIlNhbGVzIENoYW5uZWxcIlxua2FibGUoZWUyLGNhcHRpb24gPSBcIiBWZXJpZmljYXRpb24gUmVzdWx0c1wiLGZvcm1hdC5hcmdzID0gbGlzdChiaWcubWFyayA9IFwiLFwiKSxhbGlnbiA9IGMoXCJsXCIpKVxuYGBgIn0= -->
+<pre class="r"><code>ee2 &lt;- ee1 %&gt;% 
+  mutate(VerifiedFalse_Rate = paste0(format(`Verified False`/(`Verified False`+`Verified True`)*100,digits = 0), &quot;%&quot;)) %&gt;% 
+  mutate(Unverified_Rate = paste0(format(`Unverified`/(`Unverified`+`Verified False`+`Verified True`)*100,digits = 0), &quot;%&quot;))
+# change column names
+names(ee2)[names(ee2) == &quot;VerifiedFalse_Rate&quot;] &lt;- &quot;Verified False Rate&quot;
+names(ee2)[names(ee2) == &quot;Unverified_Rate&quot;] &lt;- &quot;Unverified Rate&quot;
+names(ee2)[names(ee2) == &quot;SalesChannel&quot;] &lt;- &quot;Sales Channel&quot;
+kable(ee2,caption = &quot; Verification Results&quot;,format.args = list(big.mark = &quot;,&quot;),align = c(&quot;l&quot;))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Note:<br />
+<em>Verified False Rate = Verified False / (Verified False + Verified True)</em><br />
+<em>Unverified Rate = Unverified / (Unverified + Verified False + Verified True)</em></p>
+</div>
+<div id="types-of-mis-reporting" class="section level1">
+<h1>Types of mis-reporting</h1>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZW5kZGF0ZV9tb24gPC0gZm9ybWF0KG1heChzZmRhdGEkQWN0dWFsRGVsaXZlcnlEYXRlKSxcIiViICVZXCIpICNlbmQgZGF0ZSBvZiBzbXN1Mi4wXG5zdGFydGRhdGVfbW9uIDwtIGZvcm1hdChtaW4oc2ZkYXRhJEFjdHVhbERlbGl2ZXJ5RGF0ZSksXCIlYiAlWVwiKSAjc3RhcnQgZGF0ZSBvZiBzbXN1Mi4wXG4jc2V0IHN0YXJ0IGFuZCBlbmQgZGF0ZSBvZiBzbXN1IGZvciBwdXR0aW5nIGF0IHRpdGxlcyBvZiBjaGFydFxubW9uX3BlcmlvZCA8LSBwYXN0ZTAoXCJUeXBlcyBvZiBtaXMtcmVwb3J0aW5nXCIsIFwiIFwiLCBcIihcIiAsIHN0YXJ0ZGF0ZV9tb24sXCItXCIsIGVuZGRhdGVfbW9uLCBcIilcIilcbmBgYCJ9 -->
+<pre class="r"><code>enddate_mon &lt;- format(max(sfdata$ActualDeliveryDate),&quot;%b %Y&quot;) #end date of smsu2.0
+startdate_mon &lt;- format(min(sfdata$ActualDeliveryDate),&quot;%b %Y&quot;) #start date of smsu2.0
+#set start and end date of smsu for putting at titles of chart
+mon_period &lt;- paste0(&quot;Types of mis-reporting&quot;, &quot; &quot;, &quot;(&quot; , startdate_mon,&quot;-&quot;, enddate_mon, &quot;)&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubWlzc3JlcG9ydCA8LSBzZmRhdGEgJT4lIFxuc2VsZWN0KFZlcmlmaWVkRmFsc2VDYXRlZ29yeSxcbiAgICAgICAgIFNhbGVzQ2hhbm5lbCxTZWxlY3Rmb3JWZXJpZmljYXRpb24pICU+JVxuICAjZmlsdGVyKGBTVF9MQk9kZWxpdmVyaWVzYCAhPSBcIk5BXCIpICU+JSAjZmlsdGVyIG91dCBOQSBmcm9tICdTVC1MQk8gZGVsaXZlcmllcydcbiAgZmlsdGVyKFZlcmlmaWVkRmFsc2VDYXRlZ29yeSAhPSBcIlVudmVyaWZpZWRcIikgJT4lIFxuZ3JvdXBfYnkoVmVyaWZpZWRGYWxzZUNhdGVnb3J5KSAlPiVcbiAgc3VtbWFyaXNlKFRvdGFsID0gc3VtKFNlbGVjdGZvclZlcmlmaWNhdGlvbixuYS5ybSA9IFRSVUUpKSAlPiUgXG5tdXRhdGUocGVyY2VudCA9IHJvdW5kKFRvdGFsL3N1bShUb3RhbCkqMTAwKSxsYWJlbCA9IHBhc3RlMChUb3RhbCxcIiBcIixcIihcIixwZXJjZW50LFwiJVwiLChcIilcIikpKVxudG90YWxjYXNlcyA8LSBwYXN0ZTAoXCJUb3RhbCBjYXNlczogXCIsc3VtKG1pc3NyZXBvcnQkVG90YWwpKVxubWlzc3JlcG9ydCRWZXJpZmllZEZhbHNlQ2F0ZWdvcnkgPC0gcmVvcmRlcihtaXNzcmVwb3J0JFZlcmlmaWVkRmFsc2VDYXRlZ29yeSwgbWlzc3JlcG9ydCRUb3RhbClcbmdncGxvdChtaXNzcmVwb3J0LGFlcyh4ID0gVmVyaWZpZWRGYWxzZUNhdGVnb3J5LHkgPSBUb3RhbCkpKyBnZW9tX2JhcihzdGF0ID0gXCJpZGVudGl0eVwiLGZpbGw9XCIjNDJmZmU2XCIpK1xuICB0aGVtZSh0ZXh0ID0gZWxlbWVudF90ZXh0KGZhbWlseT1cIlJvYm90byBDb25kZW5zZWRcIikpK1xuICBnZW9tX3RleHQoYWVzKGxhYmVsPWxhYmVsLCBoanVzdCA9IC0gMC4xLGZhbWlseT1cIlJvYm90byBDb25kZW5zZWRcIiksY29sb3I9XCJibGFja1wiLHNpemU9MykrIFxuICBnZ3RpdGxlKG1vbl9wZXJpb2Qsc3VidGl0bGUgPSB0b3RhbGNhc2VzKSsgXG4gIGxhYnMoeD1cIlwiLCB5PVwiTnVtYmVyIG9mIG1pcy1yZXBvcnRpbmdcIikrXG4gIHNjYWxlX3lfY29udGludW91cyhicmVha3M9c2VxKDAsNDAsMTApLGxpbWl0ID0gYygwLCA0MCkpK1xuICAgY29vcmRfZmxpcCgpK1xuICBteV90aGVtZSgpXG5gYGAifQ== -->
+<pre class="r"><code>missreport &lt;- sfdata %&gt;% 
+select(VerifiedFalseCategory,
+         SalesChannel,SelectforVerification) %&gt;%
+  #filter(`ST_LBOdeliveries` != &quot;NA&quot;) %&gt;% #filter out NA from &#39;ST-LBO deliveries&#39;
+  filter(VerifiedFalseCategory != &quot;Unverified&quot;) %&gt;% 
+group_by(VerifiedFalseCategory) %&gt;%
+  summarise(Total = sum(SelectforVerification,na.rm = TRUE)) %&gt;% 
+mutate(percent = round(Total/sum(Total)*100),label = paste0(Total,&quot; &quot;,&quot;(&quot;,percent,&quot;%&quot;,(&quot;)&quot;)))
+totalcases &lt;- paste0(&quot;Total cases: &quot;,sum(missreport$Total))
+missreport$VerifiedFalseCategory &lt;- reorder(missreport$VerifiedFalseCategory, missreport$Total)
+ggplot(missreport,aes(x = VerifiedFalseCategory,y = Total))+ geom_bar(stat = &quot;identity&quot;,fill=&quot;#42ffe6&quot;)+
+  theme(text = element_text(family=&quot;Roboto Condensed&quot;))+
+  geom_text(aes(label=label, hjust = - 0.1,family=&quot;Roboto Condensed&quot;),color=&quot;black&quot;,size=3)+ 
+  ggtitle(mon_period,subtitle = totalcases)+ 
+  labs(x=&quot;&quot;, y=&quot;Number of mis-reporting&quot;)+
+  scale_y_continuous(breaks=seq(0,40,10),limit = c(0, 40))+
+   coord_flip()+
+  my_theme()</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<div style="page-break-after: always;"></div>
+</div>
+<div id="smsu3-randomly-selected-from-deliveries-jul-2018-to-sep-2019" class="section level1">
+<h1>SMSU3 (randomly selected from deliveries Jul 2018 to Sep 2019)</h1>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGF0YXNtc3UzIDwtIGRhdGEgJT4lIFxuZmlsdGVyKGRlbGl2ZXJ5ZGF0ZSA+PSB5bWQoXCIyMDE4LTA2LTMwXCIpKVxuYGBgIn0= -->
+<pre class="r"><code>datasmsu3 &lt;- data %&gt;% 
+filter(deliverydate &gt;= ymd(&quot;2018-06-30&quot;))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGVuZ3RoIChkYXRhc21zdTMkYE1vbi1ZZWFyIERlbGl2ZXJlZGApXG5gYGAifQ== -->
+<pre class="r"><code>length (datasmsu3$`Mon-Year Delivered`)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYSA8LSBkYXRhc21zdTMgJT4lIFxuc2VsZWN0KGBUb3RhbCBzZWxlY3RlZCBkYXRhYCxgVHlwZSBvZiBjYXNlc2AsXG4gICAgICAgICBgU1RfTEJPZGVsaXZlcmllc2AsYERlbGl2ZXJpZXMgZGVsZXRlZGApICU+JVxuICBmaWx0ZXIoYFNUX0xCT2RlbGl2ZXJpZXNgICE9IFwiTkFcIikgJT4lICNmaWx0ZXIgb3V0IE5BIGZyb20gJ1NULUxCTyBkZWxpdmVyaWVzJ1xuZ3JvdXBfYnkoYFNUX0xCT2RlbGl2ZXJpZXNgKSAlPiVcbnN1bW1hcmlzZShUb3RhbFNlbGVjdGVkID0gc3VtKGBUb3RhbCBzZWxlY3RlZCBkYXRhYCxuYS5ybSA9IFRSVUUpKVxuYGBgIn0= -->
+<pre class="r"><code>a &lt;- datasmsu3 %&gt;% 
+select(`Total selected data`,`Type of cases`,
+         `ST_LBOdeliveries`,`Deliveries deleted`) %&gt;%
+  filter(`ST_LBOdeliveries` != &quot;NA&quot;) %&gt;% #filter out NA from &#39;ST-LBO deliveries&#39;
+group_by(`ST_LBOdeliveries`) %&gt;%
+summarise(TotalSelected = sum(`Total selected data`,na.rm = TRUE))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYiA8LSBkYXRhc21zdTMgJT4lIFxuc2VsZWN0KGBUb3RhbCBzZWxlY3RlZCBkYXRhYCxgVHlwZSBvZiBjYXNlc2AsXG4gICAgICAgICBgU1RfTEJPZGVsaXZlcmllc2AsYERlbGl2ZXJpZXMgZGVsZXRlZGApICU+JVxuICAgZmlsdGVyKGBTVF9MQk9kZWxpdmVyaWVzYCAhPSBcIk5BXCIpICU+JSAjZmlsdGVyIG91dCBOQSBmcm9tICdTVC1MQk8gZGVsaXZlcmllcydcbiAgIGZpbHRlcihgVHlwZSBvZiBjYXNlc2AgIT0gXCJ1bnZlcmlmaWVkXCIpICU+JSBcbmdyb3VwX2J5KGBTVF9MQk9kZWxpdmVyaWVzYCkgJT4lXG4gIHN1bW1hcmlzZShWZXJpZmllZEZhbHNlID0gc3VtKGBEZWxpdmVyaWVzIGRlbGV0ZWRgLG5hLnJtID0gVFJVRSkpXG5gYGAifQ== -->
+<pre class="r"><code>b &lt;- datasmsu3 %&gt;% 
+select(`Total selected data`,`Type of cases`,
+         `ST_LBOdeliveries`,`Deliveries deleted`) %&gt;%
+   filter(`ST_LBOdeliveries` != &quot;NA&quot;) %&gt;% #filter out NA from &#39;ST-LBO deliveries&#39;
+   filter(`Type of cases` != &quot;unverified&quot;) %&gt;% 
+group_by(`ST_LBOdeliveries`) %&gt;%
+  summarise(VerifiedFalse = sum(`Deliveries deleted`,na.rm = TRUE))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYyA8LSBkYXRhc21zdTMgJT4lIFxuc2VsZWN0KGBUb3RhbCBzZWxlY3RlZCBkYXRhYCxgVHlwZSBvZiBjYXNlc2AsXG4gICAgICAgICBgU1RfTEJPZGVsaXZlcmllc2AsYERlbGl2ZXJpZXMgZGVsZXRlZGApICU+JVxuICBmaWx0ZXIoYFR5cGUgb2YgY2FzZXNgID09IFwidW52ZXJpZmllZFwiKSAlPiUgXG4gICBmaWx0ZXIoYFNUX0xCT2RlbGl2ZXJpZXNgICE9IFwiTkFcIikgJT4lICNmaWx0ZXIgb3V0IE5BIGZyb20gJ1NULUxCTyBkZWxpdmVyaWVzJ1xuZ3JvdXBfYnkoYFNUX0xCT2RlbGl2ZXJpZXNgKSAlPiVcbiAgc3VtbWFyaXNlKFVudmVyaWZpZWQgPSBzdW0oYERlbGl2ZXJpZXMgZGVsZXRlZGAsbmEucm0gPSBUUlVFKSlcbmBgYCJ9 -->
+<pre class="r"><code>c &lt;- datasmsu3 %&gt;% 
+select(`Total selected data`,`Type of cases`,
+         `ST_LBOdeliveries`,`Deliveries deleted`) %&gt;%
+  filter(`Type of cases` == &quot;unverified&quot;) %&gt;% 
+   filter(`ST_LBOdeliveries` != &quot;NA&quot;) %&gt;% #filter out NA from &#39;ST-LBO deliveries&#39;
+group_by(`ST_LBOdeliveries`) %&gt;%
+  summarise(Unverified = sum(`Deliveries deleted`,na.rm = TRUE))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZCA8LSByaWdodF9qb2luKGEsYixieSA9IFwiU1RfTEJPZGVsaXZlcmllc1wiKVxuYGBgIn0= -->
+<pre class="r"><code>d &lt;- right_join(a,b,by = &quot;ST_LBOdeliveries&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZSA8LSByaWdodF9qb2luKGQsYywgYnkgPSBcIlNUX0xCT2RlbGl2ZXJpZXNcIilcbmBgYCJ9 -->
+<pre class="r"><code>e &lt;- right_join(d,c, by = &quot;ST_LBOdeliveries&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZiA8LSBkYXRhLmZyYW1lKFNUX0xCT2RlbGl2ZXJpZXMgPSBcIlRvdGFsXCIgLCAgVG90YWxTZWxlY3RlZCA9IHN1bShlJFRvdGFsU2VsZWN0ZWQpLCBWZXJpZmllZEZhbHNlID0gc3VtKGUkVmVyaWZpZWRGYWxzZSksVW52ZXJpZmllZCA9IHN1bShlJFVudmVyaWZpZWQpKVxuYGBgIn0= -->
+<pre class="r"><code>f &lt;- data.frame(ST_LBOdeliveries = &quot;Total&quot; ,  TotalSelected = sum(e$TotalSelected), VerifiedFalse = sum(e$VerifiedFalse),Unverified = sum(e$Unverified))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZyA8LSByYmluZChlLGYpXG5gYGAifQ== -->
+<pre class="r"><code>g &lt;- rbind(e,f)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaCA8LSBnICU+JSBcbiAgbXV0YXRlKFZlcmlmaWVkVHJ1ZSA9IFRvdGFsU2VsZWN0ZWQgLSAoVmVyaWZpZWRGYWxzZSArIFVudmVyaWZpZWQpKVxuaSA8LSBoWyxjKDEsMiw1LDMsNCldICNjaGFuZ2UgY29sdW1uIHBvc2l0aW9uXG5gYGAifQ== -->
+<pre class="r"><code>h &lt;- g %&gt;% 
+  mutate(VerifiedTrue = TotalSelected - (VerifiedFalse + Unverified))
+i &lt;- h[,c(1,2,5,3,4)] #change column position</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaiA8LSBpICU+JSBcbiAgbXV0YXRlKFZlcmlmaWVkRmFsc2VSYXRlID0gcGFzdGUwKGZvcm1hdChWZXJpZmllZEZhbHNlLyhWZXJpZmllZFRydWUgKyBWZXJpZmllZEZhbHNlKSoxMDAsZGlnaXRzID0gMCksXCIlXCIpLFxuVW52ZXJpZmllZFJhdGUgPSBwYXN0ZTAoZm9ybWF0KFVudmVyaWZpZWQvKFZlcmlmaWVkVHJ1ZSArIFZlcmlmaWVkRmFsc2UgKyBVbnZlcmlmaWVkKSoxMDAsZGlnaXRzID0gMCksIFwiJVwiKSlcblxuYGBgIn0= -->
+<pre class="r"><code>j &lt;- i %&gt;% 
+  mutate(VerifiedFalseRate = paste0(format(VerifiedFalse/(VerifiedTrue + VerifiedFalse)*100,digits = 0),&quot;%&quot;),
+UnverifiedRate = paste0(format(Unverified/(VerifiedTrue + VerifiedFalse + Unverified)*100,digits = 0), &quot;%&quot;))
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBjaGFuZ2UgY29sdW1uIG5hbWVzXG5uYW1lcyhqKVtuYW1lcyhqKSA9PSBcIlNUX0xCT2RlbGl2ZXJpZXNcIl0gPC0gXCJTQS9MQk9EZWxpdmVyaWVzXCJcbm5hbWVzKGopW25hbWVzKGopID09IFwiVG90YWxTZWxlY3RlZFwiXSA8LSBcIlRvdGFsIFZlcmlmaWNhdGlvblwiXG5uYW1lcyhqKVtuYW1lcyhqKSA9PSBcIlZlcmlmaWVkVHJ1ZVwiXSA8LSBcIlZlcmlmaWVkIFRydWVcIlxubmFtZXMoailbbmFtZXMoaikgPT0gXCJWZXJpZmllZEZhbHNlXCJdIDwtIFwiVmVyaWZpZWQgRmFsc2VcIlxubmFtZXMoailbbmFtZXMoaikgPT0gXCJWZXJpZmllZEZhbHNlUmF0ZVwiXSA8LSBcIlZlcmlmaWVkIEZhbHNlIFJhdGVcIlxubmFtZXMoailbbmFtZXMoaikgPT0gXCJVbnZlcmlmaWVkUmF0ZVwiXSA8LSBcIlVudmVyaWZpZWQgUmF0ZVwiXG4jIGFkZCB0b3RhbCB0byByb3dzIG9mIHRoZSB0YWJsZVxua2FibGUoaixjYXB0aW9uID0gXCIgVmVyaWZpY2F0aW9uIFJlc3VsdHNcIiAsXCJwYW5kb2NcIixmb3JtYXQuYXJncyA9IGxpc3QoYmlnLm1hcmsgPSBcIixcIiksYWxpZ24gPSBjKFwibFwiKSlcbmBgYCJ9 -->
+<pre class="r"><code># change column names
+names(j)[names(j) == &quot;ST_LBOdeliveries&quot;] &lt;- &quot;SA/LBODeliveries&quot;
+names(j)[names(j) == &quot;TotalSelected&quot;] &lt;- &quot;Total Verification&quot;
+names(j)[names(j) == &quot;VerifiedTrue&quot;] &lt;- &quot;Verified True&quot;
+names(j)[names(j) == &quot;VerifiedFalse&quot;] &lt;- &quot;Verified False&quot;
+names(j)[names(j) == &quot;VerifiedFalseRate&quot;] &lt;- &quot;Verified False Rate&quot;
+names(j)[names(j) == &quot;UnverifiedRate&quot;] &lt;- &quot;Unverified Rate&quot;
+# add total to rows of the table
+kable(j,caption = &quot; Verification Results&quot; ,&quot;pandoc&quot;,format.args = list(big.mark = &quot;,&quot;),align = c(&quot;l&quot;))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Note:<br />
+<em>Verified False Rate = Verified False / (Verified False + Verified True)</em><br />
+<em>Unverified Rate = Unverified / (Unverified + Verified False + Verified True)</em></p>
+</div>
+<div id="types-of-mis-reporting-1" class="section level1">
+<h1>Types of mis-reporting</h1>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZW5kZGF0ZV9zbXN1MyA8LSBmb3JtYXQobWF4KGRhdGFzbXN1MyRkZWxpdmVyeWRhdGUpLFwiJWIgJVlcIikgI2VuZCBkYXRlIG9mIHNtc3UzLjBcbnN0YXJ0ZGF0ZV9zbXN1MyA8LSBmb3JtYXQobWluKGRhdGFzbXN1MyRkZWxpdmVyeWRhdGUpLFwiJWIgJVlcIikgI3N0YXJ0IGRhdGUgb2Ygc21zdTMuMFxuI3NldCBzdGFydCBhbmQgZW5kIGRhdGUgb2Ygc21zdSBmb3IgcHV0dGluZyBhdCB0aXRsZXMgb2YgY2hhcnRcbnNtc3UzX3BlcmlvZCA8LSBwYXN0ZTAoXCJUeXBlcyBvZiBtaXMtcmVwb3J0aW5nXCIsIFwiIFwiLCBcIihcIiAsIHN0YXJ0ZGF0ZV9zbXN1MyxcIi1cIiwgZW5kZGF0ZV9zbXN1MywgXCIpXCIpXG5gYGAifQ== -->
+<pre class="r"><code>enddate_smsu3 &lt;- format(max(datasmsu3$deliverydate),&quot;%b %Y&quot;) #end date of smsu3.0
+startdate_smsu3 &lt;- format(min(datasmsu3$deliverydate),&quot;%b %Y&quot;) #start date of smsu3.0
+#set start and end date of smsu for putting at titles of chart
+smsu3_period &lt;- paste0(&quot;Types of mis-reporting&quot;, &quot; &quot;, &quot;(&quot; , startdate_smsu3,&quot;-&quot;, enddate_smsu3, &quot;)&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubWlzc3JlcG9ydCA8LSBkYXRhc21zdTMgJT4lIFxuc2VsZWN0KGBUeXBlIG9mIGNhc2VzYCxcbiAgICAgICAgIGBTVF9MQk9kZWxpdmVyaWVzYCxgRGVsaXZlcmllcyBkZWxldGVkYCkgJT4lXG4gICBmaWx0ZXIoYFNUX0xCT2RlbGl2ZXJpZXNgICE9IFwiTkFcIikgJT4lICNmaWx0ZXIgb3V0IE5BIGZyb20gJ1NULUxCTyBkZWxpdmVyaWVzJ1xuICBmaWx0ZXIoYFR5cGUgb2YgY2FzZXNgICE9IFwidW52ZXJpZmllZFwiKSAlPiUgXG5ncm91cF9ieShgVHlwZSBvZiBjYXNlc2ApICU+JVxuICBzdW1tYXJpc2UoVG90YWwgPSBzdW0oYERlbGl2ZXJpZXMgZGVsZXRlZGAsbmEucm0gPSBUUlVFKSkgJT4lIFxubXV0YXRlKHBlcmNlbnQgPSByb3VuZChUb3RhbC9zdW0oVG90YWwpKjEwMCksbGFiZWwgPSBwYXN0ZTAoVG90YWwsXCIgXCIsXCIoXCIscGVyY2VudCxcIiVcIiwoXCIpXCIpKSlcbnRvdGFsY2FzZXMgPC0gcGFzdGUwKFwiVG90YWwgY2FzZXM6IFwiLHN1bShtaXNzcmVwb3J0JFRvdGFsKSlcbm1pc3NyZXBvcnQkYFR5cGUgb2YgY2FzZXNgIDwtIHJlb3JkZXIobWlzc3JlcG9ydCRgVHlwZSBvZiBjYXNlc2AsIG1pc3NyZXBvcnQkVG90YWwpXG5nZ3Bsb3QobWlzc3JlcG9ydCxhZXMoeCA9IGBUeXBlIG9mIGNhc2VzYCx5ID0gVG90YWwpKSsgZ2VvbV9iYXIoc3RhdCA9IFwiaWRlbnRpdHlcIixmaWxsPVwiIzQyZmZlNlwiKStcbiAgdGhlbWUodGV4dCA9IGVsZW1lbnRfdGV4dChmYW1pbHk9XCJSb2JvdG8gQ29uZGVuc2VkXCIpKStcbiAgZ2VvbV90ZXh0KGFlcyhsYWJlbD1sYWJlbCwgaGp1c3QgPSAtIDAuMSxmYW1pbHk9XCJSb2JvdG8gQ29uZGVuc2VkXCIpLGNvbG9yPVwiYmxhY2tcIixzaXplPTMpKyBcbiAgZ2d0aXRsZShzbXN1M19wZXJpb2Qsc3VidGl0bGUgPSB0b3RhbGNhc2VzKSsgXG4gIGxhYnMoeD1cIlwiLCB5PVwiTnVtYmVyIG9mIG1pcy1yZXBvcnRpbmdcIikrXG4gIHNjYWxlX3lfY29udGludW91cyhicmVha3M9c2VxKDAsNjAsMTApLGxpbWl0ID0gYygwLCA2MCkpK1xuICAgY29vcmRfZmxpcCgpK1xuICBteV90aGVtZSgpXG5gYGAifQ== -->
+<pre class="r"><code>missreport &lt;- datasmsu3 %&gt;% 
+select(`Type of cases`,
+         `ST_LBOdeliveries`,`Deliveries deleted`) %&gt;%
+   filter(`ST_LBOdeliveries` != &quot;NA&quot;) %&gt;% #filter out NA from &#39;ST-LBO deliveries&#39;
+  filter(`Type of cases` != &quot;unverified&quot;) %&gt;% 
+group_by(`Type of cases`) %&gt;%
+  summarise(Total = sum(`Deliveries deleted`,na.rm = TRUE)) %&gt;% 
+mutate(percent = round(Total/sum(Total)*100),label = paste0(Total,&quot; &quot;,&quot;(&quot;,percent,&quot;%&quot;,(&quot;)&quot;)))
+totalcases &lt;- paste0(&quot;Total cases: &quot;,sum(missreport$Total))
+missreport$`Type of cases` &lt;- reorder(missreport$`Type of cases`, missreport$Total)
+ggplot(missreport,aes(x = `Type of cases`,y = Total))+ geom_bar(stat = &quot;identity&quot;,fill=&quot;#42ffe6&quot;)+
+  theme(text = element_text(family=&quot;Roboto Condensed&quot;))+
+  geom_text(aes(label=label, hjust = - 0.1,family=&quot;Roboto Condensed&quot;),color=&quot;black&quot;,size=3)+ 
+  ggtitle(smsu3_period,subtitle = totalcases)+ 
+  labs(x=&quot;&quot;, y=&quot;Number of mis-reporting&quot;)+
+  scale_y_continuous(breaks=seq(0,60,10),limit = c(0, 60))+
+   coord_flip()+
+  my_theme()</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<div style="page-break-after: always;"></div>
+</div>
+<div id="smsu2.0" class="section level1">
+<h1>SMSU2.0</h1>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGF0YXNtc3UyIDwtIGRhdGEgJT4lIFxuZmlsdGVyKGRlbGl2ZXJ5ZGF0ZSA8PSB5bWQoXCIyMDE4LTA2LTMwXCIpKVxuYGBgIn0= -->
+<pre class="r"><code>datasmsu2 &lt;- data %&gt;% 
+filter(deliverydate &lt;= ymd(&quot;2018-06-30&quot;))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYSA8LSBkYXRhc21zdTIgJT4lIFxuc2VsZWN0KGBUb3RhbCBzZWxlY3RlZCBkYXRhYCxgVHlwZSBvZiBjYXNlc2AsZGVsaXZlcnlkYXRlLFxuICAgICAgICAgYFNUX0xCT2RlbGl2ZXJpZXNgLGBEZWxpdmVyaWVzIGRlbGV0ZWRgKSAlPiVcbiAgZmlsdGVyKGBTVF9MQk9kZWxpdmVyaWVzYCAhPSBcIk5BXCIpICU+JSAjZmlsdGVyIG91dCBOQSBmcm9tICdTVC1MQk8gZGVsaXZlcmllcydcbiAgXG5ncm91cF9ieShgU1RfTEJPZGVsaXZlcmllc2ApICU+JVxuICBzdW1tYXJpc2UoVG90YWxTZWxlY3RlZCA9IHN1bShgVG90YWwgc2VsZWN0ZWQgZGF0YWAsbmEucm0gPSBUUlVFKSlcbmBgYCJ9 -->
+<pre class="r"><code>a &lt;- datasmsu2 %&gt;% 
+select(`Total selected data`,`Type of cases`,deliverydate,
+         `ST_LBOdeliveries`,`Deliveries deleted`) %&gt;%
+  filter(`ST_LBOdeliveries` != &quot;NA&quot;) %&gt;% #filter out NA from &#39;ST-LBO deliveries&#39;
+  
+group_by(`ST_LBOdeliveries`) %&gt;%
+  summarise(TotalSelected = sum(`Total selected data`,na.rm = TRUE))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYiA8LSBkYXRhc21zdTIgJT4lIFxuc2VsZWN0KGBUb3RhbCBzZWxlY3RlZCBkYXRhYCxgVHlwZSBvZiBjYXNlc2AsXG4gICAgICAgICBgU1RfTEJPZGVsaXZlcmllc2AsYERlbGl2ZXJpZXMgZGVsZXRlZGApICU+JVxuICAgZmlsdGVyKGBTVF9MQk9kZWxpdmVyaWVzYCAhPSBcIk5BXCIpICU+JSAjZmlsdGVyIG91dCBOQSBmcm9tICdTVC1MQk8gZGVsaXZlcmllcydcbiAgIGZpbHRlcihgVHlwZSBvZiBjYXNlc2AgIT0gXCJ1bnZlcmlmaWVkXCIpICU+JSBcbmdyb3VwX2J5KGBTVF9MQk9kZWxpdmVyaWVzYCkgJT4lXG4gIHN1bW1hcmlzZShWZXJpZmllZEZhbHNlID0gc3VtKGBEZWxpdmVyaWVzIGRlbGV0ZWRgLG5hLnJtID0gVFJVRSkpXG5gYGAifQ== -->
+<pre class="r"><code>b &lt;- datasmsu2 %&gt;% 
+select(`Total selected data`,`Type of cases`,
+         `ST_LBOdeliveries`,`Deliveries deleted`) %&gt;%
+   filter(`ST_LBOdeliveries` != &quot;NA&quot;) %&gt;% #filter out NA from &#39;ST-LBO deliveries&#39;
+   filter(`Type of cases` != &quot;unverified&quot;) %&gt;% 
+group_by(`ST_LBOdeliveries`) %&gt;%
+  summarise(VerifiedFalse = sum(`Deliveries deleted`,na.rm = TRUE))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYyA8LSBkYXRhc21zdTIgJT4lIFxuc2VsZWN0KGBUb3RhbCBzZWxlY3RlZCBkYXRhYCxgVHlwZSBvZiBjYXNlc2AsYE1vbi1ZZWFyIERlbGl2ZXJlZGAsXG4gICAgICAgICBgU1RfTEJPZGVsaXZlcmllc2AsYERlbGl2ZXJpZXMgZGVsZXRlZGApICU+JVxuICBmaWx0ZXIoYFR5cGUgb2YgY2FzZXNgID09IFwidW52ZXJpZmllZFwiKSAlPiUgXG4gICBmaWx0ZXIoYFNUX0xCT2RlbGl2ZXJpZXNgICE9IFwiTkFcIikgJT4lICNmaWx0ZXIgb3V0IE5BIGZyb20gJ1NULUxCTyBkZWxpdmVyaWVzJ1xuZ3JvdXBfYnkoYFNUX0xCT2RlbGl2ZXJpZXNgKSAlPiVcbiAgc3VtbWFyaXNlKFVudmVyaWZpZWQgPSBzdW0oYERlbGl2ZXJpZXMgZGVsZXRlZGAsbmEucm0gPSBUUlVFKSlcbmBgYCJ9 -->
+<pre class="r"><code>c &lt;- datasmsu2 %&gt;% 
+select(`Total selected data`,`Type of cases`,`Mon-Year Delivered`,
+         `ST_LBOdeliveries`,`Deliveries deleted`) %&gt;%
+  filter(`Type of cases` == &quot;unverified&quot;) %&gt;% 
+   filter(`ST_LBOdeliveries` != &quot;NA&quot;) %&gt;% #filter out NA from &#39;ST-LBO deliveries&#39;
+group_by(`ST_LBOdeliveries`) %&gt;%
+  summarise(Unverified = sum(`Deliveries deleted`,na.rm = TRUE))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZCA8LSByaWdodF9qb2luKGEsYixieSA9IFwiU1RfTEJPZGVsaXZlcmllc1wiKVxuYGBgIn0= -->
+<pre class="r"><code>d &lt;- right_join(a,b,by = &quot;ST_LBOdeliveries&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZSA8LSByaWdodF9qb2luKGQsYywgYnkgPSBcIlNUX0xCT2RlbGl2ZXJpZXNcIilcbmBgYCJ9 -->
+<pre class="r"><code>e &lt;- right_join(d,c, by = &quot;ST_LBOdeliveries&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZiA8LSBkYXRhLmZyYW1lKFNUX0xCT2RlbGl2ZXJpZXMgPSBcIlRvdGFsXCIgLCAgVG90YWxTZWxlY3RlZCA9IHN1bShlJFRvdGFsU2VsZWN0ZWQpLCBWZXJpZmllZEZhbHNlID0gc3VtKGUkVmVyaWZpZWRGYWxzZSksVW52ZXJpZmllZCA9IHN1bShlJFVudmVyaWZpZWQpKVxuYGBgIn0= -->
+<pre class="r"><code>f &lt;- data.frame(ST_LBOdeliveries = &quot;Total&quot; ,  TotalSelected = sum(e$TotalSelected), VerifiedFalse = sum(e$VerifiedFalse),Unverified = sum(e$Unverified))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZyA8LSByYmluZChlLGYpXG5gYGAifQ== -->
+<pre class="r"><code>g &lt;- rbind(e,f)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaCA8LSBnICU+JSBcbiAgbXV0YXRlKFZlcmlmaWVkVHJ1ZSA9IFRvdGFsU2VsZWN0ZWQgLSAoVmVyaWZpZWRGYWxzZSArIFVudmVyaWZpZWQpKVxuaSA8LSBoWyxjKDEsMiw1LDMsNCldICNjaGFuZ2UgY29sdW1uIHBvc2l0aW9uXG5gYGAifQ== -->
+<pre class="r"><code>h &lt;- g %&gt;% 
+  mutate(VerifiedTrue = TotalSelected - (VerifiedFalse + Unverified))
+i &lt;- h[,c(1,2,5,3,4)] #change column position</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaiA8LSBpICU+JSBcbiAgbXV0YXRlKFZlcmlmaWVkRmFsc2VSYXRlID0gcGFzdGUwKGZvcm1hdChWZXJpZmllZEZhbHNlLyhWZXJpZmllZFRydWUgKyBWZXJpZmllZEZhbHNlKSoxMDAsZGlnaXRzID0gMCksXCIlXCIpLFxuVW52ZXJpZmllZFJhdGUgPSBwYXN0ZTAoZm9ybWF0KFVudmVyaWZpZWQvKFZlcmlmaWVkVHJ1ZSArIFZlcmlmaWVkRmFsc2UgKyBVbnZlcmlmaWVkKSoxMDAsZGlnaXRzID0gMCksIFwiJVwiKSlcbmBgYCJ9 -->
+<pre class="r"><code>j &lt;- i %&gt;% 
+  mutate(VerifiedFalseRate = paste0(format(VerifiedFalse/(VerifiedTrue + VerifiedFalse)*100,digits = 0),&quot;%&quot;),
+UnverifiedRate = paste0(format(Unverified/(VerifiedTrue + VerifiedFalse + Unverified)*100,digits = 0), &quot;%&quot;))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBjaGFuZ2UgY29sdW1uIG5hbWVzXG5uYW1lcyhqKVtuYW1lcyhqKSA9PSBcIlNUX0xCT2RlbGl2ZXJpZXNcIl0gPC0gXCJTQS9MQk9EZWxpdmVyaWVzXCJcbm5hbWVzKGopW25hbWVzKGopID09IFwiVG90YWxTZWxlY3RlZFwiXSA8LSBcIlRvdGFsIFZlcmlmaWNhdGlvblwiXG5uYW1lcyhqKVtuYW1lcyhqKSA9PSBcIlZlcmlmaWVkVHJ1ZVwiXSA8LSBcIlZlcmlmaWVkIFRydWVcIlxubmFtZXMoailbbmFtZXMoaikgPT0gXCJWZXJpZmllZEZhbHNlXCJdIDwtIFwiVmVyaWZpZWQgRmFsc2VcIlxubmFtZXMoailbbmFtZXMoaikgPT0gXCJWZXJpZmllZEZhbHNlUmF0ZVwiXSA8LSBcIlZlcmlmaWVkIEZhbHNlIFJhdGVcIlxubmFtZXMoailbbmFtZXMoaikgPT0gXCJVbnZlcmlmaWVkUmF0ZVwiXSA8LSBcIlVudmVyaWZpZWQgUmF0ZVwiXG4jIGFkZCB0b3RhbCB0byByb3dzIG9mIHRoZSB0YWJsZVxua2FibGUoaiwgY2FwdGlvbiA9IFwiIFZlcmlmaWNhdGlvbiBSZXN1bHRzXCIsIFwicGFuZG9jXCIsZm9ybWF0LmFyZ3MgPSBsaXN0KGJpZy5tYXJrID0gXCIsXCIpLGFsaWduID0gYyhcImxcIikpXG5gYGAifQ== -->
+<pre class="r"><code># change column names
+names(j)[names(j) == &quot;ST_LBOdeliveries&quot;] &lt;- &quot;SA/LBODeliveries&quot;
+names(j)[names(j) == &quot;TotalSelected&quot;] &lt;- &quot;Total Verification&quot;
+names(j)[names(j) == &quot;VerifiedTrue&quot;] &lt;- &quot;Verified True&quot;
+names(j)[names(j) == &quot;VerifiedFalse&quot;] &lt;- &quot;Verified False&quot;
+names(j)[names(j) == &quot;VerifiedFalseRate&quot;] &lt;- &quot;Verified False Rate&quot;
+names(j)[names(j) == &quot;UnverifiedRate&quot;] &lt;- &quot;Unverified Rate&quot;
+# add total to rows of the table
+kable(j, caption = &quot; Verification Results&quot;, &quot;pandoc&quot;,format.args = list(big.mark = &quot;,&quot;),align = c(&quot;l&quot;))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Note:<br />
+<em>Verified False Rate = Verified False / (Verified False + Verified True)</em><br />
+<em>Unverified Rate = Unverified / (Unverified + Verified False + Verified True)</em></p>
+</div>
+<div id="types-of-mis-reporting-2" class="section level1">
+<h1>Types of mis-reporting</h1>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZW5kZGF0ZV9zbXN1MiA8LSBmb3JtYXQobWF4KGRhdGFzbXN1MiRkZWxpdmVyeWRhdGUpLFwiJWIgJVlcIikgI2VuZCBkYXRlIG9mIHNtc3UyLjBcbnN0YXJ0ZGF0ZV9zbXN1MiA8LSBmb3JtYXQobWluKGRhdGFzbXN1MiRkZWxpdmVyeWRhdGUpLFwiJWIgJVlcIikgI3N0YXJ0IGRhdGUgb2Ygc21zdTIuMFxuI3NldCBzdGFydCBhbmQgZW5kIGRhdGUgb2Ygc21zdSBmb3IgcHV0dGluZyBhdCB0aXRsZXMgb2YgY2hhcnRcbnNtc3UyX3BlcmlvZCA8LSBwYXN0ZTAoXCJUeXBlcyBvZiBtaXMtcmVwb3J0aW5nXCIsIFwiIFwiLCBcIihcIiAsIHN0YXJ0ZGF0ZV9zbXN1MixcIi1cIiwgZW5kZGF0ZV9zbXN1MiwgXCIpXCIpXG5gYGAifQ== -->
+<pre class="r"><code>enddate_smsu2 &lt;- format(max(datasmsu2$deliverydate),&quot;%b %Y&quot;) #end date of smsu2.0
+startdate_smsu2 &lt;- format(min(datasmsu2$deliverydate),&quot;%b %Y&quot;) #start date of smsu2.0
+#set start and end date of smsu for putting at titles of chart
+smsu2_period &lt;- paste0(&quot;Types of mis-reporting&quot;, &quot; &quot;, &quot;(&quot; , startdate_smsu2,&quot;-&quot;, enddate_smsu2, &quot;)&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubWlzc3JlcG9ydCA8LSBkYXRhc21zdTIgJT4lIFxuc2VsZWN0KGBUeXBlIG9mIGNhc2VzYCxcbiAgICAgICAgIGBTVF9MQk9kZWxpdmVyaWVzYCxgRGVsaXZlcmllcyBkZWxldGVkYCkgJT4lXG4gICBmaWx0ZXIoYFNUX0xCT2RlbGl2ZXJpZXNgICE9IFwiTkFcIikgJT4lICNmaWx0ZXIgb3V0IE5BIGZyb20gJ1NULUxCTyBkZWxpdmVyaWVzJ1xuICBmaWx0ZXIoYFR5cGUgb2YgY2FzZXNgICE9IFwidW52ZXJpZmllZFwiKSAlPiUgXG5ncm91cF9ieShgVHlwZSBvZiBjYXNlc2ApICU+JVxuICBzdW1tYXJpc2UoVG90YWwgPSBzdW0oYERlbGl2ZXJpZXMgZGVsZXRlZGAsbmEucm0gPSBUUlVFKSkgJT4lIFxubXV0YXRlKHBlcmNlbnQgPSByb3VuZChUb3RhbC9zdW0oVG90YWwpKjEwMCksbGFiZWwgPSBwYXN0ZTAoVG90YWwsXCIgXCIsXCIoXCIscGVyY2VudCxcIiVcIiwoXCIpXCIpKSlcbnRvdGFsY2FzZXMgPC0gcGFzdGUwKFwiVG90YWwgY2FzZXM6IFwiLHN1bShtaXNzcmVwb3J0JFRvdGFsKSlcbm1pc3NyZXBvcnQkYFR5cGUgb2YgY2FzZXNgIDwtIHJlb3JkZXIobWlzc3JlcG9ydCRgVHlwZSBvZiBjYXNlc2AsIG1pc3NyZXBvcnQkVG90YWwpXG5nZ3Bsb3QobWlzc3JlcG9ydCxhZXMoeCA9IGBUeXBlIG9mIGNhc2VzYCx5ID0gVG90YWwpKSsgZ2VvbV9iYXIoc3RhdCA9IFwiaWRlbnRpdHlcIixmaWxsPVwiIzQyZmZlNlwiKStcbiAgdGhlbWUodGV4dCA9IGVsZW1lbnRfdGV4dChmYW1pbHk9XCJSb2JvdG8gQ29uZGVuc2VkXCIpKStcbiAgZ2VvbV90ZXh0KGFlcyhsYWJlbD1sYWJlbCwgaGp1c3QgPSAtIDAuMSxmYW1pbHk9XCJSb2JvdG8gQ29uZGVuc2VkXCIpLGNvbG9yPVwiYmxhY2tcIixzaXplPTMpKyBcbiAgZ2d0aXRsZShzbXN1Ml9wZXJpb2Qsc3VidGl0bGUgPSB0b3RhbGNhc2VzKSsgXG4gIGxhYnMoeD1cIlwiLCB5PVwiTnVtYmVyIG9mIG1pcy1yZXBvcnRpbmdcIikrXG4gIHNjYWxlX3lfY29udGludW91cyhicmVha3M9c2VxKDAsNTAwLDEwMCksbGltaXQgPSBjKDAsIDUwMCkpK1xuICAgY29vcmRfZmxpcCgpK1xuICBteV90aGVtZSgpXG5gYGAifQ== -->
+<pre class="r"><code>missreport &lt;- datasmsu2 %&gt;% 
+select(`Type of cases`,
+         `ST_LBOdeliveries`,`Deliveries deleted`) %&gt;%
+   filter(`ST_LBOdeliveries` != &quot;NA&quot;) %&gt;% #filter out NA from &#39;ST-LBO deliveries&#39;
+  filter(`Type of cases` != &quot;unverified&quot;) %&gt;% 
+group_by(`Type of cases`) %&gt;%
+  summarise(Total = sum(`Deliveries deleted`,na.rm = TRUE)) %&gt;% 
+mutate(percent = round(Total/sum(Total)*100),label = paste0(Total,&quot; &quot;,&quot;(&quot;,percent,&quot;%&quot;,(&quot;)&quot;)))
+totalcases &lt;- paste0(&quot;Total cases: &quot;,sum(missreport$Total))
+missreport$`Type of cases` &lt;- reorder(missreport$`Type of cases`, missreport$Total)
+ggplot(missreport,aes(x = `Type of cases`,y = Total))+ geom_bar(stat = &quot;identity&quot;,fill=&quot;#42ffe6&quot;)+
+  theme(text = element_text(family=&quot;Roboto Condensed&quot;))+
+  geom_text(aes(label=label, hjust = - 0.1,family=&quot;Roboto Condensed&quot;),color=&quot;black&quot;,size=3)+ 
+  ggtitle(smsu2_period,subtitle = totalcases)+ 
+  labs(x=&quot;&quot;, y=&quot;Number of mis-reporting&quot;)+
+  scale_y_continuous(breaks=seq(0,500,100),limit = c(0, 500))+
+   coord_flip()+
+  my_theme()</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<div style="page-break-after: always;"></div>
+</div>
+<div id="all-smsu-data-from-customer-survey-spot-check-and-salesforce-random" class="section level1">
+<h1>All SMSU (data from customer survey, spot check and Salesforce random)</h1>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYSA8LSBkYXRhICU+JSBcbnNlbGVjdChgVG90YWwgc2VsZWN0ZWQgZGF0YWAsYFR5cGUgb2YgY2FzZXNgLFxuICAgICAgICAgYFNUX0xCT2RlbGl2ZXJpZXNgLGBEZWxpdmVyaWVzIGRlbGV0ZWRgKSAlPiVcbiAgIGZpbHRlcihgU1RfTEJPZGVsaXZlcmllc2AgIT0gXCJOQVwiKSAlPiUgI2ZpbHRlciBvdXQgTkEgZnJvbSAnU1QtTEJPIGRlbGl2ZXJpZXMnXG5ncm91cF9ieShgU1RfTEJPZGVsaXZlcmllc2ApICU+JVxuICBzdW1tYXJpc2UoVG90YWxTZWxlY3RlZCA9IHN1bShgVG90YWwgc2VsZWN0ZWQgZGF0YWAsbmEucm0gPSBUUlVFKSlcbmBgYCJ9 -->
+<pre class="r"><code>a &lt;- data %&gt;% 
+select(`Total selected data`,`Type of cases`,
+         `ST_LBOdeliveries`,`Deliveries deleted`) %&gt;%
+   filter(`ST_LBOdeliveries` != &quot;NA&quot;) %&gt;% #filter out NA from &#39;ST-LBO deliveries&#39;
+group_by(`ST_LBOdeliveries`) %&gt;%
+  summarise(TotalSelected = sum(`Total selected data`,na.rm = TRUE))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYiA8LSBkYXRhICU+JSBcbnNlbGVjdChgVG90YWwgc2VsZWN0ZWQgZGF0YWAsYFR5cGUgb2YgY2FzZXNgLFxuICAgICAgICAgYFNUX0xCT2RlbGl2ZXJpZXNgLGBEZWxpdmVyaWVzIGRlbGV0ZWRgKSAlPiVcbiAgIGZpbHRlcihgU1RfTEJPZGVsaXZlcmllc2AgIT0gXCJOQVwiKSAlPiUgI2ZpbHRlciBvdXQgTkEgZnJvbSAnU1QtTEJPIGRlbGl2ZXJpZXMnXG4gICBmaWx0ZXIoYFR5cGUgb2YgY2FzZXNgICE9IFwidW52ZXJpZmllZFwiKSAlPiUgXG5ncm91cF9ieShgU1RfTEJPZGVsaXZlcmllc2ApICU+JVxuICBzdW1tYXJpc2UoVmVyaWZpZWRGYWxzZSA9IHN1bShgRGVsaXZlcmllcyBkZWxldGVkYCxuYS5ybSA9IFRSVUUpKVxuYGBgIn0= -->
+<pre class="r"><code>b &lt;- data %&gt;% 
+select(`Total selected data`,`Type of cases`,
+         `ST_LBOdeliveries`,`Deliveries deleted`) %&gt;%
+   filter(`ST_LBOdeliveries` != &quot;NA&quot;) %&gt;% #filter out NA from &#39;ST-LBO deliveries&#39;
+   filter(`Type of cases` != &quot;unverified&quot;) %&gt;% 
+group_by(`ST_LBOdeliveries`) %&gt;%
+  summarise(VerifiedFalse = sum(`Deliveries deleted`,na.rm = TRUE))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYyA8LSBkYXRhICU+JSBcbnNlbGVjdChgVG90YWwgc2VsZWN0ZWQgZGF0YWAsYFR5cGUgb2YgY2FzZXNgLFxuICAgICAgICAgYFNUX0xCT2RlbGl2ZXJpZXNgLGBEZWxpdmVyaWVzIGRlbGV0ZWRgKSAlPiVcbiAgZmlsdGVyKGBUeXBlIG9mIGNhc2VzYCA9PSBcInVudmVyaWZpZWRcIikgJT4lIFxuICAgZmlsdGVyKGBTVF9MQk9kZWxpdmVyaWVzYCAhPSBcIk5BXCIpICU+JSAjZmlsdGVyIG91dCBOQSBmcm9tICdTVC1MQk8gZGVsaXZlcmllcydcbmdyb3VwX2J5KGBTVF9MQk9kZWxpdmVyaWVzYCkgJT4lXG4gIHN1bW1hcmlzZShVbnZlcmlmaWVkID0gc3VtKGBEZWxpdmVyaWVzIGRlbGV0ZWRgLG5hLnJtID0gVFJVRSkpXG5gYGAifQ== -->
+<pre class="r"><code>c &lt;- data %&gt;% 
+select(`Total selected data`,`Type of cases`,
+         `ST_LBOdeliveries`,`Deliveries deleted`) %&gt;%
+  filter(`Type of cases` == &quot;unverified&quot;) %&gt;% 
+   filter(`ST_LBOdeliveries` != &quot;NA&quot;) %&gt;% #filter out NA from &#39;ST-LBO deliveries&#39;
+group_by(`ST_LBOdeliveries`) %&gt;%
+  summarise(Unverified = sum(`Deliveries deleted`,na.rm = TRUE))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZCA8LSByaWdodF9qb2luKGEsYixieSA9IFwiU1RfTEJPZGVsaXZlcmllc1wiKVxuYGBgIn0= -->
+<pre class="r"><code>d &lt;- right_join(a,b,by = &quot;ST_LBOdeliveries&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZSA8LSByaWdodF9qb2luKGQsYywgYnkgPSBcIlNUX0xCT2RlbGl2ZXJpZXNcIilcbmBgYCJ9 -->
+<pre class="r"><code>e &lt;- right_join(d,c, by = &quot;ST_LBOdeliveries&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZiA8LSBkYXRhLmZyYW1lKFNUX0xCT2RlbGl2ZXJpZXMgPSBcIlRvdGFsXCIgLCAgVG90YWxTZWxlY3RlZCA9IHN1bShlJFRvdGFsU2VsZWN0ZWQpLCBWZXJpZmllZEZhbHNlID0gc3VtKGUkVmVyaWZpZWRGYWxzZSksVW52ZXJpZmllZCA9IHN1bShlJFVudmVyaWZpZWQpKVxuYGBgIn0= -->
+<pre class="r"><code>f &lt;- data.frame(ST_LBOdeliveries = &quot;Total&quot; ,  TotalSelected = sum(e$TotalSelected), VerifiedFalse = sum(e$VerifiedFalse),Unverified = sum(e$Unverified))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZyA8LSByYmluZChlLGYpXG5gYGAifQ== -->
+<pre class="r"><code>g &lt;- rbind(e,f)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaCA8LSBnICU+JSBcbiAgbXV0YXRlKFZlcmlmaWVkVHJ1ZSA9IFRvdGFsU2VsZWN0ZWQgLSAoVmVyaWZpZWRGYWxzZSArIFVudmVyaWZpZWQpKVxuaSA8LSBoWyxjKDEsMiw1LDMsNCldICNjaGFuZ2UgY29sdW1uIHBvc2l0aW9uXG5gYGAifQ== -->
+<pre class="r"><code>h &lt;- g %&gt;% 
+  mutate(VerifiedTrue = TotalSelected - (VerifiedFalse + Unverified))
+i &lt;- h[,c(1,2,5,3,4)] #change column position</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaiA8LSBpICU+JSBcbm11dGF0ZShWZXJpZmllZEZhbHNlUmF0ZSA9IHBhc3RlMChmb3JtYXQoVmVyaWZpZWRGYWxzZS8oVmVyaWZpZWRUcnVlICsgVmVyaWZpZWRGYWxzZSkqMTAwLGRpZ2l0cyA9IDApLFwiJVwiKSxcblVudmVyaWZpZWRSYXRlID0gcGFzdGUwKGZvcm1hdChVbnZlcmlmaWVkLyhWZXJpZmllZFRydWUgKyBWZXJpZmllZEZhbHNlICsgVW52ZXJpZmllZCkqMTAwLGRpZ2l0cyA9IDApLCBcIiVcIikpXG5gYGAifQ== -->
+<pre class="r"><code>j &lt;- i %&gt;% 
+mutate(VerifiedFalseRate = paste0(format(VerifiedFalse/(VerifiedTrue + VerifiedFalse)*100,digits = 0),&quot;%&quot;),
+UnverifiedRate = paste0(format(Unverified/(VerifiedTrue + VerifiedFalse + Unverified)*100,digits = 0), &quot;%&quot;))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBjaGFuZ2UgY29sdW1uIG5hbWVzXG5uYW1lcyhqKVtuYW1lcyhqKSA9PSBcIlNUX0xCT2RlbGl2ZXJpZXNcIl0gPC0gXCJTQS9MQk9EZWxpdmVyaWVzXCJcbm5hbWVzKGopW25hbWVzKGopID09IFwiVG90YWxTZWxlY3RlZFwiXSA8LSBcIlRvdGFsIFZlcmlmaWNhdGlvblwiXG5uYW1lcyhqKVtuYW1lcyhqKSA9PSBcIlZlcmlmaWVkVHJ1ZVwiXSA8LSBcIlZlcmlmaWVkIFRydWVcIlxubmFtZXMoailbbmFtZXMoaikgPT0gXCJWZXJpZmllZEZhbHNlXCJdIDwtIFwiVmVyaWZpZWQgRmFsc2VcIlxubmFtZXMoailbbmFtZXMoaikgPT0gXCJWZXJpZmllZEZhbHNlUmF0ZVwiXSA8LSBcIlZlcmlmaWVkIEZhbHNlIFJhdGVcIlxubmFtZXMoailbbmFtZXMoaikgPT0gXCJVbnZlcmlmaWVkUmF0ZVwiXSA8LSBcIlVudmVyaWZpZWQgUmF0ZVwiXG4jIGFkZCB0b3RhbCB0byByb3dzIG9mIHRoZSB0YWJsZVxua2FibGUoaiwgY2FwdGlvbiA9IFwiVmVyaWZpY2F0aW9uIFJlc3VsdHNcIiwgZm9ybWF0LmFyZ3MgPSBsaXN0KGJpZy5tYXJrID0gXCIsXCIpLGFsaWduID0gYyhcImxcIikpXG5gYGAifQ== -->
+<pre class="r"><code># change column names
+names(j)[names(j) == &quot;ST_LBOdeliveries&quot;] &lt;- &quot;SA/LBODeliveries&quot;
+names(j)[names(j) == &quot;TotalSelected&quot;] &lt;- &quot;Total Verification&quot;
+names(j)[names(j) == &quot;VerifiedTrue&quot;] &lt;- &quot;Verified True&quot;
+names(j)[names(j) == &quot;VerifiedFalse&quot;] &lt;- &quot;Verified False&quot;
+names(j)[names(j) == &quot;VerifiedFalseRate&quot;] &lt;- &quot;Verified False Rate&quot;
+names(j)[names(j) == &quot;UnverifiedRate&quot;] &lt;- &quot;Unverified Rate&quot;
+# add total to rows of the table
+kable(j, caption = &quot;Verification Results&quot;, format.args = list(big.mark = &quot;,&quot;),align = c(&quot;l&quot;))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Note:<br />
+<em>Verified False Rate = Verified False / (Verified False + Verified True)</em><br />
+<em>Unverified Rate = Unverified / (Unverified + Verified False + Verified True)</em></p>
+</div>
+<div id="types-of-mis-reporting-3" class="section level1">
+<h1>Types of mis-reporting</h1>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI3NldCBwZXJpb2QgZm9yIFNNU1UzLjBcbmVuZGRhdGUgPC0gZm9ybWF0KG1heChkYXRhJGRlbGl2ZXJ5ZGF0ZSksXCIlYiAlWVwiKSAjZW5kIGRhdGVcbnN0YXJ0ZGF0ZSA8LSBmb3JtYXQobWluKGRhdGEkZGVsaXZlcnlkYXRlKSxcIiViICVZXCIpICNzdGFydCBkZXRlXG5wZXJpb2QgPC0gcGFzdGUwKFwiVHlwZXMgb2YgbWlzLXJlcG9ydGluZ1wiLCBcIiBcIiwgXCIoXCIgLCBzdGFydGRhdGUsXCItXCIsIGVuZGRhdGUsIFwiKVwiKVxuYGBgIn0= -->
+<pre class="r"><code>#set period for SMSU3.0
+enddate &lt;- format(max(data$deliverydate),&quot;%b %Y&quot;) #end date
+startdate &lt;- format(min(data$deliverydate),&quot;%b %Y&quot;) #start dete
+period &lt;- paste0(&quot;Types of mis-reporting&quot;, &quot; &quot;, &quot;(&quot; , startdate,&quot;-&quot;, enddate, &quot;)&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubWlzc3JlcG9ydCA8LSBkYXRhICU+JSBcbnNlbGVjdChgVHlwZSBvZiBjYXNlc2AsXG4gICAgICAgICBgU1RfTEJPZGVsaXZlcmllc2AsYERlbGl2ZXJpZXMgZGVsZXRlZGApICU+JVxuICAgZmlsdGVyKGBTVF9MQk9kZWxpdmVyaWVzYCAhPSBcIk5BXCIpICU+JSAjZmlsdGVyIG91dCBOQSBmcm9tICdTVC1MQk8gZGVsaXZlcmllcydcbiAgZmlsdGVyKGBUeXBlIG9mIGNhc2VzYCAhPSBcInVudmVyaWZpZWRcIikgJT4lXG5ncm91cF9ieShgVHlwZSBvZiBjYXNlc2ApICU+JVxuICBzdW1tYXJpc2UoVG90YWwgPSBzdW0oYERlbGl2ZXJpZXMgZGVsZXRlZGAsbmEucm0gPSBUUlVFKSkgJT4lIFxubXV0YXRlKHBlcmNlbnQgPSByb3VuZChUb3RhbC9zdW0oVG90YWwpKjEwMCksbGFiZWwgPSBwYXN0ZTAoVG90YWwsXCIgXCIsXCIoXCIscGVyY2VudCxcIiVcIiwoXCIpXCIpKSlcbnRvdGFsY2FzZXMgPC0gcGFzdGUwKFwiVG90YWwgY2FzZXM6IFwiLHN1bShtaXNzcmVwb3J0JFRvdGFsKSlcbm1pc3NyZXBvcnQkYFR5cGUgb2YgY2FzZXNgIDwtIHJlb3JkZXIobWlzc3JlcG9ydCRgVHlwZSBvZiBjYXNlc2AsIG1pc3NyZXBvcnQkVG90YWwpXG5nZ3Bsb3QobWlzc3JlcG9ydCxhZXMoeCA9IGBUeXBlIG9mIGNhc2VzYCx5ID0gVG90YWwpKSsgZ2VvbV9iYXIoc3RhdCA9IFwiaWRlbnRpdHlcIixmaWxsPVwiIzQyZmZlNlwiKStcbiAgdGhlbWUodGV4dD1lbGVtZW50X3RleHQoZmFtaWx5PVwiUm9ib3RvIENvbmRlbnNlZFwiKSkrXG4gIGdlb21fdGV4dChhZXMobGFiZWw9bGFiZWwsIGhqdXN0ID0gLSAwLjEsZmFtaWx5PVwiUm9ib3RvIENvbmRlbnNlZFwiKSxjb2xvcj1cImJsYWNrXCIsc2l6ZT0zKSsgXG4gIGdndGl0bGUocGVyaW9kLHN1YnRpdGxlID0gdG90YWxjYXNlcykrIFxuICBsYWJzKHg9XCJcIiwgeT1cIk51bWJlciBvZiBtaXMtcmVwb3J0aW5nXCIpK1xuICBzY2FsZV95X2NvbnRpbnVvdXMoYnJlYWtzID0gc2VxKDAsNTUwLDEwMCksbGltaXQgPSBjKDAsIDU1MCkpK1xuICAgY29vcmRfZmxpcCgpK1xuICBteV90aGVtZSgpXG5gYGAifQ== -->
+<pre class="r"><code>missreport &lt;- data %&gt;% 
+select(`Type of cases`,
+         `ST_LBOdeliveries`,`Deliveries deleted`) %&gt;%
+   filter(`ST_LBOdeliveries` != &quot;NA&quot;) %&gt;% #filter out NA from &#39;ST-LBO deliveries&#39;
+  filter(`Type of cases` != &quot;unverified&quot;) %&gt;%
+group_by(`Type of cases`) %&gt;%
+  summarise(Total = sum(`Deliveries deleted`,na.rm = TRUE)) %&gt;% 
+mutate(percent = round(Total/sum(Total)*100),label = paste0(Total,&quot; &quot;,&quot;(&quot;,percent,&quot;%&quot;,(&quot;)&quot;)))
+totalcases &lt;- paste0(&quot;Total cases: &quot;,sum(missreport$Total))
+missreport$`Type of cases` &lt;- reorder(missreport$`Type of cases`, missreport$Total)
+ggplot(missreport,aes(x = `Type of cases`,y = Total))+ geom_bar(stat = &quot;identity&quot;,fill=&quot;#42ffe6&quot;)+
+  theme(text=element_text(family=&quot;Roboto Condensed&quot;))+
+  geom_text(aes(label=label, hjust = - 0.1,family=&quot;Roboto Condensed&quot;),color=&quot;black&quot;,size=3)+ 
+  ggtitle(period,subtitle = totalcases)+ 
+  labs(x=&quot;&quot;, y=&quot;Number of mis-reporting&quot;)+
+  scale_y_continuous(breaks = seq(0,550,100),limit = c(0, 550))+
+   coord_flip()+
+  my_theme()</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+</div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIlIgTm90ZWJvb2siDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQpUaGlzIGlzIGFuIFtSIE1hcmtkb3duXShodHRwOi8vcm1hcmtkb3duLnJzdHVkaW8uY29tKSBOb3RlYm9vay4gV2hlbiB5b3UgZXhlY3V0ZSBjb2RlIHdpdGhpbiB0aGUgbm90ZWJvb2ssIHRoZSByZXN1bHRzIGFwcGVhciBiZW5lYXRoIHRoZSBjb2RlLiAgDQoNCg0KYGBge3J9DQpwbG90KGNhcnMpDQpgYGANCg0KDQo=</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIlIgTm90ZWJvb2siDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQoNCmBgYHtyIGdsb2JhbF9vcHRpb25zLCBpbmNsdWRlPUZBTFNFfQ0Ka25pdHI6Om9wdHNfY2h1bmskc2V0KGVjaG8gPSBGQUxTRSwgd2FybmluZz1GQUxTRSwgbWVzc2FnZT1GQUxTRSkNCmBgYA0KDQoNCmBgYHtyfQ0KbGlicmFyeShyZWFkcikNCmxpYnJhcnkocmVhZHhsKQ0KbGlicmFyeSh0aWR5dmVyc2UpDQpsaWJyYXJ5KGx1YnJpZGF0ZSkNCmxpYnJhcnkoamFuaXRvcikNCmxpYnJhcnkoa25pdHIpDQpsaWJyYXJ5KGV4dHJhZm9udCkNCmBgYA0KDQpgYGB7cn0NCiMgTVkgVEhFTUUNCiAgbXlfdGhlbWUgPC0gZnVuY3Rpb24oKSB7IA0KICAgIHRoZW1lX2J3KGJhc2Vfc2l6ZSA9IDExLCBiYXNlX2ZhbWlseSA9ICJSb2JvdG8gQ29uZGVuc2VkIikgJStyZXBsYWNlJSANCiAgICAgIHRoZW1lKA0KICAgICAgcGxvdC50aXRsZSA9IGVsZW1lbnRfdGV4dChjb2xvciA9ICJibGFjayIsZmFjZSA9ICJib2xkIiwgc2l6ZSA9IDEyKSwNCiAgICAgIHBsb3Quc3VidGl0bGUgPSBlbGVtZW50X3RleHQoY29sb3IgPSAiYmxhY2siLGZhY2UgPSAiaXRhbGljIixzaXplID0gMTApLA0KICAgICAgYXhpcy50ZXh0LnggPSBlbGVtZW50X3RleHQoY29sb3IgPSAiYmxhY2siLGhqdXN0ID0gMC41KSwNCiAgICAgIGF4aXMudGV4dC55ID0gZWxlbWVudF90ZXh0KGNvbG9yID0gImJsYWNrIixoanVzdCA9IDEsdmp1c3QgPSAwLjQpLA0KICAgICAgYXhpcy50aXRsZSA9IGVsZW1lbnRfdGV4dChjb2xvciA9ICJibGFjayIsc2l6ZSA9IDkpLA0KICAgICBwbG90LmNhcHRpb24gPSBlbGVtZW50X3RleHQoY29sb3IgPSAiI0FBQUFBQSIsaGp1c3QgPSAxLCBzaXplID0gNikNCiAgICAgICkNCn0NCmBgYA0KDQoNCg0KYGBge3J9DQpkYXRhIDwtIHJlYWRfY3N2KCJEYXRhc2V0L2FsbHF2ZGF0YS5jc3YiKQ0KYGBgDQoNCmBgYHtyfQ0KIyB0byBjb252ZXJ0IHZhcmlhYmxlIGBNb24tWWVhciBEZWxpdmVyZWRgIHRvIGRhdGUgZm9ybWF0DQpkYXRhJGRlbGl2ZXJ5ZGF0ZSA8LSBkbXkocGFzdGUoIjAxLSIsIGRhdGEkYE1vbi1ZZWFyIERlbGl2ZXJlZGAsc2VwID0gIiIpKQ0KYGBgDQoNCg0KYGBge3J9DQpsaWJyYXJ5KHJlYWRyKQ0Kc2ZkYXRhIDwtIHJlYWRfY3N2KCJEYXRhc2V0L2RlbGl2ZXJlZHNlcDIwMTkuY3N2IikNCmBgYA0KDQoNCg0KYGBge3J9DQpzZmRhdGEkQWN0dWFsRGVsaXZlcnlEYXRlIDwtIGRteShzZmRhdGEkQWN0dWFsRGVsaXZlcnlEYXRlKQ0Kc2ZkYXRhJFNlbGVjdGZvclZlcmlmaWNhdGlvbiA8LSBhcy5udW1lcmljKHNmZGF0YSRTZWxlY3Rmb3JWZXJpZmljYXRpb24pDQoNCmBgYA0KDQoNCg0KIyBTTVNVMyAocmFuZG9tbHkgc2VsZWN0ZWQgYnkgU2FsZXNmb3JjZSBmcm9tIGRlbGl2ZXJpZXMgTWFyLVNlcCAyMDE5KSANCg0KYGBge3J9DQphYSA8LSBzZmRhdGEgJT4lIA0KICBzZWxlY3QoQWN0dWFsRGVsaXZlcnlEYXRlLFZlcmlmaWNhdGlvbk91dGNvbWUsU2VsZWN0Zm9yVmVyaWZpY2F0aW9uKSAlPiUgDQogIGZpbHRlcihWZXJpZmljYXRpb25PdXRjb21lICE9IDAsVmVyaWZpY2F0aW9uT3V0Y29tZSAhPSAiUGVuZGluZyIpICU+JSANCiAgbXV0YXRlKERlbGl2ZXJ5ZGF0ZSA9IGFzLkRhdGUoY3V0KEFjdHVhbERlbGl2ZXJ5RGF0ZSxicmVha3MgPSAibW9udGgiKSkpICU+JQ0KICBncm91cF9ieShWZXJpZmljYXRpb25PdXRjb21lLERlbGl2ZXJ5ZGF0ZSkNCmBgYA0KDQpgYGB7cn0NCmFhJFZlcmlmaWNhdGlvbk91dGNvbWUgPC0gYXMuZmFjdG9yKGFhJFZlcmlmaWNhdGlvbk91dGNvbWUpDQphYSRTZWxlY3Rmb3JWZXJpZmljYXRpb24gPC0gYXMubnVtZXJpYyhhYSRTZWxlY3Rmb3JWZXJpZmljYXRpb24pDQpgYGANCg0KYGBge3J9DQpiYiA8LSBhYSAlPiUgDQogIGdyb3VwX2J5KFZlcmlmaWNhdGlvbk91dGNvbWUsRGVsaXZlcnlkYXRlKSAlPiUgDQogIHN1bW1hcml6ZShkYXRhY2hlY2sgPSBzdW0oU2VsZWN0Zm9yVmVyaWZpY2F0aW9uKSkNCmNjIDwtIGFnZ3JlZ2F0ZShkYXRhY2hlY2sgfiBEZWxpdmVyeWRhdGUrVmVyaWZpY2F0aW9uT3V0Y29tZSxkYXRhID0gYmIsc3VtKQ0KZGQgPC0gc3ByZWFkKGNjLCBWZXJpZmljYXRpb25PdXRjb21lLCBkYXRhY2hlY2spIA0KZGRbaXMubmEoZGQpXSA8LSAwICMgYXNzaWduIE5BIGluIHRoZSBkYXRhZnJhbWUgYXMgemVybw0KZGQkRGVsaXZlcnlkYXRlIDwtIGZvcm1hdChkZCREZWxpdmVyeWRhdGUsIiVZICViIikgIyBmb3JtYXQgZGF0YSB0byB5eXl5IG1tbQ0KZWUgPC0gZGQgJT4lICAgDQphZG9ybl90b3RhbHMgKGMoInJvdyIsImNvbCIpKQ0KZWUxIDwtIGVlWyxjKDEsNSwgNCwgMywgMildICNjaGFuZ2UgY29sdW1uIHBvc2l0aW9uDQpgYGANCg0KYGBge3J9DQojQ2hhbmdlIGNvbHVtbiBuYW1lDQpuYW1lcyhlZTEpW25hbWVzKGVlMSkgPT0gIkRlbGl2ZXJ5ZGF0ZSJdIDwtICJEZWxpdmVyeSBEYXRlIg0KbmFtZXMoZWUxKVtuYW1lcyhlZTEpID09ICJUb3RhbCJdIDwtICJUb3RhbCBWZXJpZmljYXRpb24iDQpgYGANCg0KDQpgYGB7cn0NCmVlMiA8LSBlZTEgJT4lIA0KICBtdXRhdGUoVmVyaWZpZWRGYWxzZV9SYXRlID0gcGFzdGUwKGZvcm1hdChgVmVyaWZpZWQgRmFsc2VgLyhgVmVyaWZpZWQgRmFsc2VgK2BWZXJpZmllZCBUcnVlYCkqMTAwLGRpZ2l0cyA9IDApLCAiJSIpKSAlPiUgDQogIG11dGF0ZShVbnZlcmlmaWVkX1JhdGUgPSBwYXN0ZTAoZm9ybWF0KGBVbnZlcmlmaWVkYC8oYFVudmVyaWZpZWRgK2BWZXJpZmllZCBGYWxzZWArYFZlcmlmaWVkIFRydWVgKSoxMDAsZGlnaXRzID0gMCksICIlIikpDQojIGNoYW5nZSBjb2x1bW4gbmFtZXMNCm5hbWVzKGVlMilbbmFtZXMoZWUyKSA9PSAiVmVyaWZpZWRGYWxzZV9SYXRlIl0gPC0gIlZlcmlmaWVkIEZhbHNlIFJhdGUiDQpuYW1lcyhlZTIpW25hbWVzKGVlMikgPT0gIlVudmVyaWZpZWRfUmF0ZSJdIDwtICJVbnZlcmlmaWVkIFJhdGUiDQprYWJsZShlZTIsY2FwdGlvbiA9ICIgVmVyaWZpY2F0aW9uIFJlc3VsdHMiLGZvcm1hdC5hcmdzID0gbGlzdChiaWcubWFyayA9ICIsIiksIGFsaWduID0gYygibCIpKQ0KYGBgDQoNCk5vdGU6ICAgDQoqVmVyaWZpZWQgRmFsc2UgUmF0ZSA9IFZlcmlmaWVkIEZhbHNlIC8gKFZlcmlmaWVkIEZhbHNlICsgVmVyaWZpZWQgVHJ1ZSkqICAgICANCipVbnZlcmlmaWVkIFJhdGUgPSBVbnZlcmlmaWVkIC8gKFVudmVyaWZpZWQgKyBWZXJpZmllZCBGYWxzZSArIFZlcmlmaWVkIFRydWUpKg0KDQoNCiMgVmVyaWZpY2F0aW9uIHJhdGUgYnkgU2FsZXMgQ2hhbm5lbA0KDQoNCmBgYHtyfQ0KYmIgPC0gc2ZkYXRhICU+JSANCiAgZ3JvdXBfYnkoVmVyaWZpY2F0aW9uT3V0Y29tZSxTYWxlc0NoYW5uZWwpICU+JSANCiAgc3VtbWFyaXplKGRhdGFjaGVjayA9IHN1bShTZWxlY3Rmb3JWZXJpZmljYXRpb24pKQ0KY2MgPC0gYWdncmVnYXRlKGRhdGFjaGVjayB+IFNhbGVzQ2hhbm5lbCtWZXJpZmljYXRpb25PdXRjb21lLGRhdGEgPSBiYixzdW0pDQpkZCA8LSBzcHJlYWQoY2MsIFZlcmlmaWNhdGlvbk91dGNvbWUsIGRhdGFjaGVjaykgDQpkZFtpcy5uYShkZCldIDwtIDAgIyBhc3NpZ24gTkEgaW4gdGhlIGRhdGFmcmFtZSBhcyB6ZXJvDQplZSA8LSBkZCAlPiUgICANCmFkb3JuX3RvdGFscyAoYygicm93IiwiY29sIikpDQplZTEgPC0gZWVbLGMoMSw1LCA0LCAzLCAyKV0gI2NoYW5nZSBjb2x1bW4gcG9zaXRpb24NCmBgYA0KDQpgYGB7cn0NCiNDaGFuZ2UgY29sdW1uIG5hbWUNCm5hbWVzKGVlMSlbbmFtZXMoZWUxKSA9PSAiRGVsaXZlcnlkYXRlIl0gPC0gIkRlbGl2ZXJ5IERhdGUiDQpuYW1lcyhlZTEpW25hbWVzKGVlMSkgPT0gIlRvdGFsIl0gPC0gIlRvdGFsIFZlcmlmaWNhdGlvbiINCmBgYA0KDQoNCmBgYHtyfQ0KZWUyIDwtIGVlMSAlPiUgDQogIG11dGF0ZShWZXJpZmllZEZhbHNlX1JhdGUgPSBwYXN0ZTAoZm9ybWF0KGBWZXJpZmllZCBGYWxzZWAvKGBWZXJpZmllZCBGYWxzZWArYFZlcmlmaWVkIFRydWVgKSoxMDAsZGlnaXRzID0gMCksICIlIikpICU+JSANCiAgbXV0YXRlKFVudmVyaWZpZWRfUmF0ZSA9IHBhc3RlMChmb3JtYXQoYFVudmVyaWZpZWRgLyhgVW52ZXJpZmllZGArYFZlcmlmaWVkIEZhbHNlYCtgVmVyaWZpZWQgVHJ1ZWApKjEwMCxkaWdpdHMgPSAwKSwgIiUiKSkNCiMgY2hhbmdlIGNvbHVtbiBuYW1lcw0KbmFtZXMoZWUyKVtuYW1lcyhlZTIpID09ICJWZXJpZmllZEZhbHNlX1JhdGUiXSA8LSAiVmVyaWZpZWQgRmFsc2UgUmF0ZSINCm5hbWVzKGVlMilbbmFtZXMoZWUyKSA9PSAiVW52ZXJpZmllZF9SYXRlIl0gPC0gIlVudmVyaWZpZWQgUmF0ZSINCm5hbWVzKGVlMilbbmFtZXMoZWUyKSA9PSAiU2FsZXNDaGFubmVsIl0gPC0gIlNhbGVzIENoYW5uZWwiDQprYWJsZShlZTIsY2FwdGlvbiA9ICIgVmVyaWZpY2F0aW9uIFJlc3VsdHMiLGZvcm1hdC5hcmdzID0gbGlzdChiaWcubWFyayA9ICIsIiksYWxpZ24gPSBjKCJsIikpDQpgYGANCg0KTm90ZTogICANCipWZXJpZmllZCBGYWxzZSBSYXRlID0gVmVyaWZpZWQgRmFsc2UgLyAoVmVyaWZpZWQgRmFsc2UgKyBWZXJpZmllZCBUcnVlKSogICAgIA0KKlVudmVyaWZpZWQgUmF0ZSA9IFVudmVyaWZpZWQgLyAoVW52ZXJpZmllZCArIFZlcmlmaWVkIEZhbHNlICsgVmVyaWZpZWQgVHJ1ZSkqDQoNCg0KIyBUeXBlcyBvZiBtaXMtcmVwb3J0aW5nDQoNCmBgYHtyfQ0KZW5kZGF0ZV9tb24gPC0gZm9ybWF0KG1heChzZmRhdGEkQWN0dWFsRGVsaXZlcnlEYXRlKSwiJWIgJVkiKSAjZW5kIGRhdGUgb2Ygc21zdTIuMA0Kc3RhcnRkYXRlX21vbiA8LSBmb3JtYXQobWluKHNmZGF0YSRBY3R1YWxEZWxpdmVyeURhdGUpLCIlYiAlWSIpICNzdGFydCBkYXRlIG9mIHNtc3UyLjANCiNzZXQgc3RhcnQgYW5kIGVuZCBkYXRlIG9mIHNtc3UgZm9yIHB1dHRpbmcgYXQgdGl0bGVzIG9mIGNoYXJ0DQptb25fcGVyaW9kIDwtIHBhc3RlMCgiVHlwZXMgb2YgbWlzLXJlcG9ydGluZyIsICIgIiwgIigiICwgc3RhcnRkYXRlX21vbiwiLSIsIGVuZGRhdGVfbW9uLCAiKSIpDQpgYGANCg0KYGBge3J9DQptaXNzcmVwb3J0IDwtIHNmZGF0YSAlPiUgDQpzZWxlY3QoVmVyaWZpZWRGYWxzZUNhdGVnb3J5LA0KICAgICAgICAgU2FsZXNDaGFubmVsLFNlbGVjdGZvclZlcmlmaWNhdGlvbikgJT4lDQogICNmaWx0ZXIoYFNUX0xCT2RlbGl2ZXJpZXNgICE9ICJOQSIpICU+JSAjZmlsdGVyIG91dCBOQSBmcm9tICdTVC1MQk8gZGVsaXZlcmllcycNCiAgZmlsdGVyKFZlcmlmaWVkRmFsc2VDYXRlZ29yeSAhPSAiVW52ZXJpZmllZCIpICU+JSANCmdyb3VwX2J5KFZlcmlmaWVkRmFsc2VDYXRlZ29yeSkgJT4lDQogIHN1bW1hcmlzZShUb3RhbCA9IHN1bShTZWxlY3Rmb3JWZXJpZmljYXRpb24sbmEucm0gPSBUUlVFKSkgJT4lIA0KbXV0YXRlKHBlcmNlbnQgPSByb3VuZChUb3RhbC9zdW0oVG90YWwpKjEwMCksbGFiZWwgPSBwYXN0ZTAoVG90YWwsIiAiLCIoIixwZXJjZW50LCIlIiwoIikiKSkpDQp0b3RhbGNhc2VzIDwtIHBhc3RlMCgiVG90YWwgY2FzZXM6ICIsc3VtKG1pc3NyZXBvcnQkVG90YWwpKQ0KbWlzc3JlcG9ydCRWZXJpZmllZEZhbHNlQ2F0ZWdvcnkgPC0gcmVvcmRlcihtaXNzcmVwb3J0JFZlcmlmaWVkRmFsc2VDYXRlZ29yeSwgbWlzc3JlcG9ydCRUb3RhbCkNCmdncGxvdChtaXNzcmVwb3J0LGFlcyh4ID0gVmVyaWZpZWRGYWxzZUNhdGVnb3J5LHkgPSBUb3RhbCkpKyBnZW9tX2JhcihzdGF0ID0gImlkZW50aXR5IixmaWxsPSIjNDJmZmU2IikrDQogIHRoZW1lKHRleHQgPSBlbGVtZW50X3RleHQoZmFtaWx5PSJSb2JvdG8gQ29uZGVuc2VkIikpKw0KICBnZW9tX3RleHQoYWVzKGxhYmVsPWxhYmVsLCBoanVzdCA9IC0gMC4xLGZhbWlseT0iUm9ib3RvIENvbmRlbnNlZCIpLGNvbG9yPSJibGFjayIsc2l6ZT0zKSsgDQogIGdndGl0bGUobW9uX3BlcmlvZCxzdWJ0aXRsZSA9IHRvdGFsY2FzZXMpKyANCiAgbGFicyh4PSIiLCB5PSJOdW1iZXIgb2YgbWlzLXJlcG9ydGluZyIpKw0KICBzY2FsZV95X2NvbnRpbnVvdXMoYnJlYWtzPXNlcSgwLDQwLDEwKSxsaW1pdCA9IGMoMCwgNDApKSsNCiAgIGNvb3JkX2ZsaXAoKSsNCiAgbXlfdGhlbWUoKQ0KYGBgDQoNCg0KXG5ld3BhZ2UNCg0KIyBTTVNVMyAocmFuZG9tbHkgc2VsZWN0ZWQgZnJvbSBkZWxpdmVyaWVzIEp1bCAyMDE4IHRvIFNlcCAyMDE5KQ0KDQpgYGB7cn0NCmRhdGFzbXN1MyA8LSBkYXRhICU+JSANCmZpbHRlcihkZWxpdmVyeWRhdGUgPj0geW1kKCIyMDE4LTA2LTMwIikpDQpgYGANCg0KYGBge3J9DQpsZW5ndGggKGRhdGFzbXN1MyRgTW9uLVllYXIgRGVsaXZlcmVkYCkNCmBgYA0KDQoNCmBgYHtyfQ0KYSA8LSBkYXRhc21zdTMgJT4lIA0Kc2VsZWN0KGBUb3RhbCBzZWxlY3RlZCBkYXRhYCxgVHlwZSBvZiBjYXNlc2AsDQogICAgICAgICBgU1RfTEJPZGVsaXZlcmllc2AsYERlbGl2ZXJpZXMgZGVsZXRlZGApICU+JQ0KICBmaWx0ZXIoYFNUX0xCT2RlbGl2ZXJpZXNgICE9ICJOQSIpICU+JSAjZmlsdGVyIG91dCBOQSBmcm9tICdTVC1MQk8gZGVsaXZlcmllcycNCmdyb3VwX2J5KGBTVF9MQk9kZWxpdmVyaWVzYCkgJT4lDQpzdW1tYXJpc2UoVG90YWxTZWxlY3RlZCA9IHN1bShgVG90YWwgc2VsZWN0ZWQgZGF0YWAsbmEucm0gPSBUUlVFKSkNCmBgYA0KDQpgYGB7cn0NCmIgPC0gZGF0YXNtc3UzICU+JSANCnNlbGVjdChgVG90YWwgc2VsZWN0ZWQgZGF0YWAsYFR5cGUgb2YgY2FzZXNgLA0KICAgICAgICAgYFNUX0xCT2RlbGl2ZXJpZXNgLGBEZWxpdmVyaWVzIGRlbGV0ZWRgKSAlPiUNCiAgIGZpbHRlcihgU1RfTEJPZGVsaXZlcmllc2AgIT0gIk5BIikgJT4lICNmaWx0ZXIgb3V0IE5BIGZyb20gJ1NULUxCTyBkZWxpdmVyaWVzJw0KICAgZmlsdGVyKGBUeXBlIG9mIGNhc2VzYCAhPSAidW52ZXJpZmllZCIpICU+JSANCmdyb3VwX2J5KGBTVF9MQk9kZWxpdmVyaWVzYCkgJT4lDQogIHN1bW1hcmlzZShWZXJpZmllZEZhbHNlID0gc3VtKGBEZWxpdmVyaWVzIGRlbGV0ZWRgLG5hLnJtID0gVFJVRSkpDQpgYGANCg0KDQpgYGB7cn0NCmMgPC0gZGF0YXNtc3UzICU+JSANCnNlbGVjdChgVG90YWwgc2VsZWN0ZWQgZGF0YWAsYFR5cGUgb2YgY2FzZXNgLA0KICAgICAgICAgYFNUX0xCT2RlbGl2ZXJpZXNgLGBEZWxpdmVyaWVzIGRlbGV0ZWRgKSAlPiUNCiAgZmlsdGVyKGBUeXBlIG9mIGNhc2VzYCA9PSAidW52ZXJpZmllZCIpICU+JSANCiAgIGZpbHRlcihgU1RfTEJPZGVsaXZlcmllc2AgIT0gIk5BIikgJT4lICNmaWx0ZXIgb3V0IE5BIGZyb20gJ1NULUxCTyBkZWxpdmVyaWVzJw0KZ3JvdXBfYnkoYFNUX0xCT2RlbGl2ZXJpZXNgKSAlPiUNCiAgc3VtbWFyaXNlKFVudmVyaWZpZWQgPSBzdW0oYERlbGl2ZXJpZXMgZGVsZXRlZGAsbmEucm0gPSBUUlVFKSkNCmBgYA0KDQoNCmBgYHtyLCBtZXNzYWdlPSBGQUxTRX0NCmQgPC0gcmlnaHRfam9pbihhLGIsYnkgPSAiU1RfTEJPZGVsaXZlcmllcyIpDQpgYGANCg0KYGBge3J9DQplIDwtIHJpZ2h0X2pvaW4oZCxjLCBieSA9ICJTVF9MQk9kZWxpdmVyaWVzIikNCmBgYA0KDQoNCmBgYHtyfQ0KZiA8LSBkYXRhLmZyYW1lKFNUX0xCT2RlbGl2ZXJpZXMgPSAiVG90YWwiICwgIFRvdGFsU2VsZWN0ZWQgPSBzdW0oZSRUb3RhbFNlbGVjdGVkKSwgVmVyaWZpZWRGYWxzZSA9IHN1bShlJFZlcmlmaWVkRmFsc2UpLFVudmVyaWZpZWQgPSBzdW0oZSRVbnZlcmlmaWVkKSkNCmBgYA0KDQpgYGB7cn0NCmcgPC0gcmJpbmQoZSxmKQ0KYGBgDQoNCg0KYGBge3J9DQpoIDwtIGcgJT4lIA0KICBtdXRhdGUoVmVyaWZpZWRUcnVlID0gVG90YWxTZWxlY3RlZCAtIChWZXJpZmllZEZhbHNlICsgVW52ZXJpZmllZCkpDQppIDwtIGhbLGMoMSwyLDUsMyw0KV0gI2NoYW5nZSBjb2x1bW4gcG9zaXRpb24NCmBgYA0KDQpgYGB7cn0NCmogPC0gaSAlPiUgDQogIG11dGF0ZShWZXJpZmllZEZhbHNlUmF0ZSA9IHBhc3RlMChmb3JtYXQoVmVyaWZpZWRGYWxzZS8oVmVyaWZpZWRUcnVlICsgVmVyaWZpZWRGYWxzZSkqMTAwLGRpZ2l0cyA9IDApLCIlIiksDQpVbnZlcmlmaWVkUmF0ZSA9IHBhc3RlMChmb3JtYXQoVW52ZXJpZmllZC8oVmVyaWZpZWRUcnVlICsgVmVyaWZpZWRGYWxzZSArIFVudmVyaWZpZWQpKjEwMCxkaWdpdHMgPSAwKSwgIiUiKSkNCg0KYGBgDQoNCg0KYGBge3J9DQojIGNoYW5nZSBjb2x1bW4gbmFtZXMNCm5hbWVzKGopW25hbWVzKGopID09ICJTVF9MQk9kZWxpdmVyaWVzIl0gPC0gIlNBL0xCT0RlbGl2ZXJpZXMiDQpuYW1lcyhqKVtuYW1lcyhqKSA9PSAiVG90YWxTZWxlY3RlZCJdIDwtICJUb3RhbCBWZXJpZmljYXRpb24iDQpuYW1lcyhqKVtuYW1lcyhqKSA9PSAiVmVyaWZpZWRUcnVlIl0gPC0gIlZlcmlmaWVkIFRydWUiDQpuYW1lcyhqKVtuYW1lcyhqKSA9PSAiVmVyaWZpZWRGYWxzZSJdIDwtICJWZXJpZmllZCBGYWxzZSINCm5hbWVzKGopW25hbWVzKGopID09ICJWZXJpZmllZEZhbHNlUmF0ZSJdIDwtICJWZXJpZmllZCBGYWxzZSBSYXRlIg0KbmFtZXMoailbbmFtZXMoaikgPT0gIlVudmVyaWZpZWRSYXRlIl0gPC0gIlVudmVyaWZpZWQgUmF0ZSINCiMgYWRkIHRvdGFsIHRvIHJvd3Mgb2YgdGhlIHRhYmxlDQprYWJsZShqLGNhcHRpb24gPSAiIFZlcmlmaWNhdGlvbiBSZXN1bHRzIiAsInBhbmRvYyIsZm9ybWF0LmFyZ3MgPSBsaXN0KGJpZy5tYXJrID0gIiwiKSxhbGlnbiA9IGMoImwiKSkNCmBgYA0KDQpOb3RlOiAgIA0KKlZlcmlmaWVkIEZhbHNlIFJhdGUgPSBWZXJpZmllZCBGYWxzZSAvIChWZXJpZmllZCBGYWxzZSArIFZlcmlmaWVkIFRydWUpKiAgICAgDQoqVW52ZXJpZmllZCBSYXRlID0gVW52ZXJpZmllZCAvIChVbnZlcmlmaWVkICsgVmVyaWZpZWQgRmFsc2UgKyBWZXJpZmllZCBUcnVlKSoNCg0KDQojIFR5cGVzIG9mIG1pcy1yZXBvcnRpbmcNCg0KYGBge3J9DQplbmRkYXRlX3Ntc3UzIDwtIGZvcm1hdChtYXgoZGF0YXNtc3UzJGRlbGl2ZXJ5ZGF0ZSksIiViICVZIikgI2VuZCBkYXRlIG9mIHNtc3UzLjANCnN0YXJ0ZGF0ZV9zbXN1MyA8LSBmb3JtYXQobWluKGRhdGFzbXN1MyRkZWxpdmVyeWRhdGUpLCIlYiAlWSIpICNzdGFydCBkYXRlIG9mIHNtc3UzLjANCiNzZXQgc3RhcnQgYW5kIGVuZCBkYXRlIG9mIHNtc3UgZm9yIHB1dHRpbmcgYXQgdGl0bGVzIG9mIGNoYXJ0DQpzbXN1M19wZXJpb2QgPC0gcGFzdGUwKCJUeXBlcyBvZiBtaXMtcmVwb3J0aW5nIiwgIiAiLCAiKCIgLCBzdGFydGRhdGVfc21zdTMsIi0iLCBlbmRkYXRlX3Ntc3UzLCAiKSIpDQpgYGANCg0KYGBge3J9DQptaXNzcmVwb3J0IDwtIGRhdGFzbXN1MyAlPiUgDQpzZWxlY3QoYFR5cGUgb2YgY2FzZXNgLA0KICAgICAgICAgYFNUX0xCT2RlbGl2ZXJpZXNgLGBEZWxpdmVyaWVzIGRlbGV0ZWRgKSAlPiUNCiAgIGZpbHRlcihgU1RfTEJPZGVsaXZlcmllc2AgIT0gIk5BIikgJT4lICNmaWx0ZXIgb3V0IE5BIGZyb20gJ1NULUxCTyBkZWxpdmVyaWVzJw0KICBmaWx0ZXIoYFR5cGUgb2YgY2FzZXNgICE9ICJ1bnZlcmlmaWVkIikgJT4lIA0KZ3JvdXBfYnkoYFR5cGUgb2YgY2FzZXNgKSAlPiUNCiAgc3VtbWFyaXNlKFRvdGFsID0gc3VtKGBEZWxpdmVyaWVzIGRlbGV0ZWRgLG5hLnJtID0gVFJVRSkpICU+JSANCm11dGF0ZShwZXJjZW50ID0gcm91bmQoVG90YWwvc3VtKFRvdGFsKSoxMDApLGxhYmVsID0gcGFzdGUwKFRvdGFsLCIgIiwiKCIscGVyY2VudCwiJSIsKCIpIikpKQ0KdG90YWxjYXNlcyA8LSBwYXN0ZTAoIlRvdGFsIGNhc2VzOiAiLHN1bShtaXNzcmVwb3J0JFRvdGFsKSkNCm1pc3NyZXBvcnQkYFR5cGUgb2YgY2FzZXNgIDwtIHJlb3JkZXIobWlzc3JlcG9ydCRgVHlwZSBvZiBjYXNlc2AsIG1pc3NyZXBvcnQkVG90YWwpDQpnZ3Bsb3QobWlzc3JlcG9ydCxhZXMoeCA9IGBUeXBlIG9mIGNhc2VzYCx5ID0gVG90YWwpKSsgZ2VvbV9iYXIoc3RhdCA9ICJpZGVudGl0eSIsZmlsbD0iIzQyZmZlNiIpKw0KICB0aGVtZSh0ZXh0ID0gZWxlbWVudF90ZXh0KGZhbWlseT0iUm9ib3RvIENvbmRlbnNlZCIpKSsNCiAgZ2VvbV90ZXh0KGFlcyhsYWJlbD1sYWJlbCwgaGp1c3QgPSAtIDAuMSxmYW1pbHk9IlJvYm90byBDb25kZW5zZWQiKSxjb2xvcj0iYmxhY2siLHNpemU9MykrIA0KICBnZ3RpdGxlKHNtc3UzX3BlcmlvZCxzdWJ0aXRsZSA9IHRvdGFsY2FzZXMpKyANCiAgbGFicyh4PSIiLCB5PSJOdW1iZXIgb2YgbWlzLXJlcG9ydGluZyIpKw0KICBzY2FsZV95X2NvbnRpbnVvdXMoYnJlYWtzPXNlcSgwLDYwLDEwKSxsaW1pdCA9IGMoMCwgNjApKSsNCiAgIGNvb3JkX2ZsaXAoKSsNCiAgbXlfdGhlbWUoKQ0KYGBgDQoNClxuZXdwYWdlDQojIFNNU1UyLjANCg0KYGBge3J9DQpkYXRhc21zdTIgPC0gZGF0YSAlPiUgDQpmaWx0ZXIoZGVsaXZlcnlkYXRlIDw9IHltZCgiMjAxOC0wNi0zMCIpKQ0KYGBgDQoNCmBgYHtyfQ0KYSA8LSBkYXRhc21zdTIgJT4lIA0Kc2VsZWN0KGBUb3RhbCBzZWxlY3RlZCBkYXRhYCxgVHlwZSBvZiBjYXNlc2AsZGVsaXZlcnlkYXRlLA0KICAgICAgICAgYFNUX0xCT2RlbGl2ZXJpZXNgLGBEZWxpdmVyaWVzIGRlbGV0ZWRgKSAlPiUNCiAgZmlsdGVyKGBTVF9MQk9kZWxpdmVyaWVzYCAhPSAiTkEiKSAlPiUgI2ZpbHRlciBvdXQgTkEgZnJvbSAnU1QtTEJPIGRlbGl2ZXJpZXMnDQogIA0KZ3JvdXBfYnkoYFNUX0xCT2RlbGl2ZXJpZXNgKSAlPiUNCiAgc3VtbWFyaXNlKFRvdGFsU2VsZWN0ZWQgPSBzdW0oYFRvdGFsIHNlbGVjdGVkIGRhdGFgLG5hLnJtID0gVFJVRSkpDQpgYGANCg0KYGBge3J9DQpiIDwtIGRhdGFzbXN1MiAlPiUgDQpzZWxlY3QoYFRvdGFsIHNlbGVjdGVkIGRhdGFgLGBUeXBlIG9mIGNhc2VzYCwNCiAgICAgICAgIGBTVF9MQk9kZWxpdmVyaWVzYCxgRGVsaXZlcmllcyBkZWxldGVkYCkgJT4lDQogICBmaWx0ZXIoYFNUX0xCT2RlbGl2ZXJpZXNgICE9ICJOQSIpICU+JSAjZmlsdGVyIG91dCBOQSBmcm9tICdTVC1MQk8gZGVsaXZlcmllcycNCiAgIGZpbHRlcihgVHlwZSBvZiBjYXNlc2AgIT0gInVudmVyaWZpZWQiKSAlPiUgDQpncm91cF9ieShgU1RfTEJPZGVsaXZlcmllc2ApICU+JQ0KICBzdW1tYXJpc2UoVmVyaWZpZWRGYWxzZSA9IHN1bShgRGVsaXZlcmllcyBkZWxldGVkYCxuYS5ybSA9IFRSVUUpKQ0KYGBgDQoNCg0KYGBge3J9DQpjIDwtIGRhdGFzbXN1MiAlPiUgDQpzZWxlY3QoYFRvdGFsIHNlbGVjdGVkIGRhdGFgLGBUeXBlIG9mIGNhc2VzYCxgTW9uLVllYXIgRGVsaXZlcmVkYCwNCiAgICAgICAgIGBTVF9MQk9kZWxpdmVyaWVzYCxgRGVsaXZlcmllcyBkZWxldGVkYCkgJT4lDQogIGZpbHRlcihgVHlwZSBvZiBjYXNlc2AgPT0gInVudmVyaWZpZWQiKSAlPiUgDQogICBmaWx0ZXIoYFNUX0xCT2RlbGl2ZXJpZXNgICE9ICJOQSIpICU+JSAjZmlsdGVyIG91dCBOQSBmcm9tICdTVC1MQk8gZGVsaXZlcmllcycNCmdyb3VwX2J5KGBTVF9MQk9kZWxpdmVyaWVzYCkgJT4lDQogIHN1bW1hcmlzZShVbnZlcmlmaWVkID0gc3VtKGBEZWxpdmVyaWVzIGRlbGV0ZWRgLG5hLnJtID0gVFJVRSkpDQpgYGANCg0KDQpgYGB7ciwgbWVzc2FnZT0gRkFMU0V9DQpkIDwtIHJpZ2h0X2pvaW4oYSxiLGJ5ID0gIlNUX0xCT2RlbGl2ZXJpZXMiKQ0KYGBgDQoNCmBgYHtyfQ0KZSA8LSByaWdodF9qb2luKGQsYywgYnkgPSAiU1RfTEJPZGVsaXZlcmllcyIpDQpgYGANCg0KDQpgYGB7cn0NCmYgPC0gZGF0YS5mcmFtZShTVF9MQk9kZWxpdmVyaWVzID0gIlRvdGFsIiAsICBUb3RhbFNlbGVjdGVkID0gc3VtKGUkVG90YWxTZWxlY3RlZCksIFZlcmlmaWVkRmFsc2UgPSBzdW0oZSRWZXJpZmllZEZhbHNlKSxVbnZlcmlmaWVkID0gc3VtKGUkVW52ZXJpZmllZCkpDQpgYGANCg0KYGBge3J9DQpnIDwtIHJiaW5kKGUsZikNCmBgYA0KDQoNCmBgYHtyfQ0KaCA8LSBnICU+JSANCiAgbXV0YXRlKFZlcmlmaWVkVHJ1ZSA9IFRvdGFsU2VsZWN0ZWQgLSAoVmVyaWZpZWRGYWxzZSArIFVudmVyaWZpZWQpKQ0KaSA8LSBoWyxjKDEsMiw1LDMsNCldICNjaGFuZ2UgY29sdW1uIHBvc2l0aW9uDQpgYGANCg0KYGBge3J9DQpqIDwtIGkgJT4lIA0KICBtdXRhdGUoVmVyaWZpZWRGYWxzZVJhdGUgPSBwYXN0ZTAoZm9ybWF0KFZlcmlmaWVkRmFsc2UvKFZlcmlmaWVkVHJ1ZSArIFZlcmlmaWVkRmFsc2UpKjEwMCxkaWdpdHMgPSAwKSwiJSIpLA0KVW52ZXJpZmllZFJhdGUgPSBwYXN0ZTAoZm9ybWF0KFVudmVyaWZpZWQvKFZlcmlmaWVkVHJ1ZSArIFZlcmlmaWVkRmFsc2UgKyBVbnZlcmlmaWVkKSoxMDAsZGlnaXRzID0gMCksICIlIikpDQpgYGANCg0KDQpgYGB7cn0NCiMgY2hhbmdlIGNvbHVtbiBuYW1lcw0KbmFtZXMoailbbmFtZXMoaikgPT0gIlNUX0xCT2RlbGl2ZXJpZXMiXSA8LSAiU0EvTEJPRGVsaXZlcmllcyINCm5hbWVzKGopW25hbWVzKGopID09ICJUb3RhbFNlbGVjdGVkIl0gPC0gIlRvdGFsIFZlcmlmaWNhdGlvbiINCm5hbWVzKGopW25hbWVzKGopID09ICJWZXJpZmllZFRydWUiXSA8LSAiVmVyaWZpZWQgVHJ1ZSINCm5hbWVzKGopW25hbWVzKGopID09ICJWZXJpZmllZEZhbHNlIl0gPC0gIlZlcmlmaWVkIEZhbHNlIg0KbmFtZXMoailbbmFtZXMoaikgPT0gIlZlcmlmaWVkRmFsc2VSYXRlIl0gPC0gIlZlcmlmaWVkIEZhbHNlIFJhdGUiDQpuYW1lcyhqKVtuYW1lcyhqKSA9PSAiVW52ZXJpZmllZFJhdGUiXSA8LSAiVW52ZXJpZmllZCBSYXRlIg0KIyBhZGQgdG90YWwgdG8gcm93cyBvZiB0aGUgdGFibGUNCmthYmxlKGosIGNhcHRpb24gPSAiIFZlcmlmaWNhdGlvbiBSZXN1bHRzIiwgInBhbmRvYyIsZm9ybWF0LmFyZ3MgPSBsaXN0KGJpZy5tYXJrID0gIiwiKSxhbGlnbiA9IGMoImwiKSkNCmBgYA0KDQpOb3RlOiAgIA0KKlZlcmlmaWVkIEZhbHNlIFJhdGUgPSBWZXJpZmllZCBGYWxzZSAvIChWZXJpZmllZCBGYWxzZSArIFZlcmlmaWVkIFRydWUpKiAgICAgDQoqVW52ZXJpZmllZCBSYXRlID0gVW52ZXJpZmllZCAvIChVbnZlcmlmaWVkICsgVmVyaWZpZWQgRmFsc2UgKyBWZXJpZmllZCBUcnVlKSoNCg0KDQojIFR5cGVzIG9mIG1pcy1yZXBvcnRpbmcNCg0KYGBge3J9DQplbmRkYXRlX3Ntc3UyIDwtIGZvcm1hdChtYXgoZGF0YXNtc3UyJGRlbGl2ZXJ5ZGF0ZSksIiViICVZIikgI2VuZCBkYXRlIG9mIHNtc3UyLjANCnN0YXJ0ZGF0ZV9zbXN1MiA8LSBmb3JtYXQobWluKGRhdGFzbXN1MiRkZWxpdmVyeWRhdGUpLCIlYiAlWSIpICNzdGFydCBkYXRlIG9mIHNtc3UyLjANCiNzZXQgc3RhcnQgYW5kIGVuZCBkYXRlIG9mIHNtc3UgZm9yIHB1dHRpbmcgYXQgdGl0bGVzIG9mIGNoYXJ0DQpzbXN1Ml9wZXJpb2QgPC0gcGFzdGUwKCJUeXBlcyBvZiBtaXMtcmVwb3J0aW5nIiwgIiAiLCAiKCIgLCBzdGFydGRhdGVfc21zdTIsIi0iLCBlbmRkYXRlX3Ntc3UyLCAiKSIpDQpgYGANCg0KYGBge3J9DQptaXNzcmVwb3J0IDwtIGRhdGFzbXN1MiAlPiUgDQpzZWxlY3QoYFR5cGUgb2YgY2FzZXNgLA0KICAgICAgICAgYFNUX0xCT2RlbGl2ZXJpZXNgLGBEZWxpdmVyaWVzIGRlbGV0ZWRgKSAlPiUNCiAgIGZpbHRlcihgU1RfTEJPZGVsaXZlcmllc2AgIT0gIk5BIikgJT4lICNmaWx0ZXIgb3V0IE5BIGZyb20gJ1NULUxCTyBkZWxpdmVyaWVzJw0KICBmaWx0ZXIoYFR5cGUgb2YgY2FzZXNgICE9ICJ1bnZlcmlmaWVkIikgJT4lIA0KZ3JvdXBfYnkoYFR5cGUgb2YgY2FzZXNgKSAlPiUNCiAgc3VtbWFyaXNlKFRvdGFsID0gc3VtKGBEZWxpdmVyaWVzIGRlbGV0ZWRgLG5hLnJtID0gVFJVRSkpICU+JSANCm11dGF0ZShwZXJjZW50ID0gcm91bmQoVG90YWwvc3VtKFRvdGFsKSoxMDApLGxhYmVsID0gcGFzdGUwKFRvdGFsLCIgIiwiKCIscGVyY2VudCwiJSIsKCIpIikpKQ0KdG90YWxjYXNlcyA8LSBwYXN0ZTAoIlRvdGFsIGNhc2VzOiAiLHN1bShtaXNzcmVwb3J0JFRvdGFsKSkNCm1pc3NyZXBvcnQkYFR5cGUgb2YgY2FzZXNgIDwtIHJlb3JkZXIobWlzc3JlcG9ydCRgVHlwZSBvZiBjYXNlc2AsIG1pc3NyZXBvcnQkVG90YWwpDQpnZ3Bsb3QobWlzc3JlcG9ydCxhZXMoeCA9IGBUeXBlIG9mIGNhc2VzYCx5ID0gVG90YWwpKSsgZ2VvbV9iYXIoc3RhdCA9ICJpZGVudGl0eSIsZmlsbD0iIzQyZmZlNiIpKw0KICB0aGVtZSh0ZXh0ID0gZWxlbWVudF90ZXh0KGZhbWlseT0iUm9ib3RvIENvbmRlbnNlZCIpKSsNCiAgZ2VvbV90ZXh0KGFlcyhsYWJlbD1sYWJlbCwgaGp1c3QgPSAtIDAuMSxmYW1pbHk9IlJvYm90byBDb25kZW5zZWQiKSxjb2xvcj0iYmxhY2siLHNpemU9MykrIA0KICBnZ3RpdGxlKHNtc3UyX3BlcmlvZCxzdWJ0aXRsZSA9IHRvdGFsY2FzZXMpKyANCiAgbGFicyh4PSIiLCB5PSJOdW1iZXIgb2YgbWlzLXJlcG9ydGluZyIpKw0KICBzY2FsZV95X2NvbnRpbnVvdXMoYnJlYWtzPXNlcSgwLDUwMCwxMDApLGxpbWl0ID0gYygwLCA1MDApKSsNCiAgIGNvb3JkX2ZsaXAoKSsNCiAgbXlfdGhlbWUoKQ0KYGBgDQoNClxuZXdwYWdlDQoNCiMgQWxsIFNNU1UgKGRhdGEgZnJvbSBjdXN0b21lciBzdXJ2ZXksIHNwb3QgY2hlY2sgYW5kIFNhbGVzZm9yY2UgcmFuZG9tKQ0KDQoNCmBgYHtyfQ0KYSA8LSBkYXRhICU+JSANCnNlbGVjdChgVG90YWwgc2VsZWN0ZWQgZGF0YWAsYFR5cGUgb2YgY2FzZXNgLA0KICAgICAgICAgYFNUX0xCT2RlbGl2ZXJpZXNgLGBEZWxpdmVyaWVzIGRlbGV0ZWRgKSAlPiUNCiAgIGZpbHRlcihgU1RfTEJPZGVsaXZlcmllc2AgIT0gIk5BIikgJT4lICNmaWx0ZXIgb3V0IE5BIGZyb20gJ1NULUxCTyBkZWxpdmVyaWVzJw0KZ3JvdXBfYnkoYFNUX0xCT2RlbGl2ZXJpZXNgKSAlPiUNCiAgc3VtbWFyaXNlKFRvdGFsU2VsZWN0ZWQgPSBzdW0oYFRvdGFsIHNlbGVjdGVkIGRhdGFgLG5hLnJtID0gVFJVRSkpDQpgYGANCg0KYGBge3J9DQpiIDwtIGRhdGEgJT4lIA0Kc2VsZWN0KGBUb3RhbCBzZWxlY3RlZCBkYXRhYCxgVHlwZSBvZiBjYXNlc2AsDQogICAgICAgICBgU1RfTEJPZGVsaXZlcmllc2AsYERlbGl2ZXJpZXMgZGVsZXRlZGApICU+JQ0KICAgZmlsdGVyKGBTVF9MQk9kZWxpdmVyaWVzYCAhPSAiTkEiKSAlPiUgI2ZpbHRlciBvdXQgTkEgZnJvbSAnU1QtTEJPIGRlbGl2ZXJpZXMnDQogICBmaWx0ZXIoYFR5cGUgb2YgY2FzZXNgICE9ICJ1bnZlcmlmaWVkIikgJT4lIA0KZ3JvdXBfYnkoYFNUX0xCT2RlbGl2ZXJpZXNgKSAlPiUNCiAgc3VtbWFyaXNlKFZlcmlmaWVkRmFsc2UgPSBzdW0oYERlbGl2ZXJpZXMgZGVsZXRlZGAsbmEucm0gPSBUUlVFKSkNCmBgYA0KDQoNCmBgYHtyfQ0KYyA8LSBkYXRhICU+JSANCnNlbGVjdChgVG90YWwgc2VsZWN0ZWQgZGF0YWAsYFR5cGUgb2YgY2FzZXNgLA0KICAgICAgICAgYFNUX0xCT2RlbGl2ZXJpZXNgLGBEZWxpdmVyaWVzIGRlbGV0ZWRgKSAlPiUNCiAgZmlsdGVyKGBUeXBlIG9mIGNhc2VzYCA9PSAidW52ZXJpZmllZCIpICU+JSANCiAgIGZpbHRlcihgU1RfTEJPZGVsaXZlcmllc2AgIT0gIk5BIikgJT4lICNmaWx0ZXIgb3V0IE5BIGZyb20gJ1NULUxCTyBkZWxpdmVyaWVzJw0KZ3JvdXBfYnkoYFNUX0xCT2RlbGl2ZXJpZXNgKSAlPiUNCiAgc3VtbWFyaXNlKFVudmVyaWZpZWQgPSBzdW0oYERlbGl2ZXJpZXMgZGVsZXRlZGAsbmEucm0gPSBUUlVFKSkNCmBgYA0KDQoNCmBgYHtyLCBtZXNzYWdlPSBGQUxTRX0NCmQgPC0gcmlnaHRfam9pbihhLGIsYnkgPSAiU1RfTEJPZGVsaXZlcmllcyIpDQpgYGANCg0KYGBge3J9DQplIDwtIHJpZ2h0X2pvaW4oZCxjLCBieSA9ICJTVF9MQk9kZWxpdmVyaWVzIikNCmBgYA0KDQoNCmBgYHtyfQ0KZiA8LSBkYXRhLmZyYW1lKFNUX0xCT2RlbGl2ZXJpZXMgPSAiVG90YWwiICwgIFRvdGFsU2VsZWN0ZWQgPSBzdW0oZSRUb3RhbFNlbGVjdGVkKSwgVmVyaWZpZWRGYWxzZSA9IHN1bShlJFZlcmlmaWVkRmFsc2UpLFVudmVyaWZpZWQgPSBzdW0oZSRVbnZlcmlmaWVkKSkNCmBgYA0KDQpgYGB7cn0NCmcgPC0gcmJpbmQoZSxmKQ0KYGBgDQoNCg0KYGBge3J9DQpoIDwtIGcgJT4lIA0KICBtdXRhdGUoVmVyaWZpZWRUcnVlID0gVG90YWxTZWxlY3RlZCAtIChWZXJpZmllZEZhbHNlICsgVW52ZXJpZmllZCkpDQppIDwtIGhbLGMoMSwyLDUsMyw0KV0gI2NoYW5nZSBjb2x1bW4gcG9zaXRpb24NCmBgYA0KDQpgYGB7cn0NCmogPC0gaSAlPiUgDQptdXRhdGUoVmVyaWZpZWRGYWxzZVJhdGUgPSBwYXN0ZTAoZm9ybWF0KFZlcmlmaWVkRmFsc2UvKFZlcmlmaWVkVHJ1ZSArIFZlcmlmaWVkRmFsc2UpKjEwMCxkaWdpdHMgPSAwKSwiJSIpLA0KVW52ZXJpZmllZFJhdGUgPSBwYXN0ZTAoZm9ybWF0KFVudmVyaWZpZWQvKFZlcmlmaWVkVHJ1ZSArIFZlcmlmaWVkRmFsc2UgKyBVbnZlcmlmaWVkKSoxMDAsZGlnaXRzID0gMCksICIlIikpDQpgYGANCg0KDQpgYGB7cn0NCiMgY2hhbmdlIGNvbHVtbiBuYW1lcw0KbmFtZXMoailbbmFtZXMoaikgPT0gIlNUX0xCT2RlbGl2ZXJpZXMiXSA8LSAiU0EvTEJPRGVsaXZlcmllcyINCm5hbWVzKGopW25hbWVzKGopID09ICJUb3RhbFNlbGVjdGVkIl0gPC0gIlRvdGFsIFZlcmlmaWNhdGlvbiINCm5hbWVzKGopW25hbWVzKGopID09ICJWZXJpZmllZFRydWUiXSA8LSAiVmVyaWZpZWQgVHJ1ZSINCm5hbWVzKGopW25hbWVzKGopID09ICJWZXJpZmllZEZhbHNlIl0gPC0gIlZlcmlmaWVkIEZhbHNlIg0KbmFtZXMoailbbmFtZXMoaikgPT0gIlZlcmlmaWVkRmFsc2VSYXRlIl0gPC0gIlZlcmlmaWVkIEZhbHNlIFJhdGUiDQpuYW1lcyhqKVtuYW1lcyhqKSA9PSAiVW52ZXJpZmllZFJhdGUiXSA8LSAiVW52ZXJpZmllZCBSYXRlIg0KIyBhZGQgdG90YWwgdG8gcm93cyBvZiB0aGUgdGFibGUNCmthYmxlKGosIGNhcHRpb24gPSAiVmVyaWZpY2F0aW9uIFJlc3VsdHMiLCBmb3JtYXQuYXJncyA9IGxpc3QoYmlnLm1hcmsgPSAiLCIpLGFsaWduID0gYygibCIpKQ0KYGBgDQoNCk5vdGU6ICAgDQoqVmVyaWZpZWQgRmFsc2UgUmF0ZSA9IFZlcmlmaWVkIEZhbHNlIC8gKFZlcmlmaWVkIEZhbHNlICsgVmVyaWZpZWQgVHJ1ZSkqICAgICANCipVbnZlcmlmaWVkIFJhdGUgPSBVbnZlcmlmaWVkIC8gKFVudmVyaWZpZWQgKyBWZXJpZmllZCBGYWxzZSArIFZlcmlmaWVkIFRydWUpKg0KDQojIFR5cGVzIG9mIG1pcy1yZXBvcnRpbmcNCg0KYGBge3J9DQojc2V0IHBlcmlvZCBmb3IgU01TVTMuMA0KZW5kZGF0ZSA8LSBmb3JtYXQobWF4KGRhdGEkZGVsaXZlcnlkYXRlKSwiJWIgJVkiKSAjZW5kIGRhdGUNCnN0YXJ0ZGF0ZSA8LSBmb3JtYXQobWluKGRhdGEkZGVsaXZlcnlkYXRlKSwiJWIgJVkiKSAjc3RhcnQgZGV0ZQ0KcGVyaW9kIDwtIHBhc3RlMCgiVHlwZXMgb2YgbWlzLXJlcG9ydGluZyIsICIgIiwgIigiICwgc3RhcnRkYXRlLCItIiwgZW5kZGF0ZSwgIikiKQ0KYGBgDQoNCg0KYGBge3J9DQptaXNzcmVwb3J0IDwtIGRhdGEgJT4lIA0Kc2VsZWN0KGBUeXBlIG9mIGNhc2VzYCwNCiAgICAgICAgIGBTVF9MQk9kZWxpdmVyaWVzYCxgRGVsaXZlcmllcyBkZWxldGVkYCkgJT4lDQogICBmaWx0ZXIoYFNUX0xCT2RlbGl2ZXJpZXNgICE9ICJOQSIpICU+JSAjZmlsdGVyIG91dCBOQSBmcm9tICdTVC1MQk8gZGVsaXZlcmllcycNCiAgZmlsdGVyKGBUeXBlIG9mIGNhc2VzYCAhPSAidW52ZXJpZmllZCIpICU+JQ0KZ3JvdXBfYnkoYFR5cGUgb2YgY2FzZXNgKSAlPiUNCiAgc3VtbWFyaXNlKFRvdGFsID0gc3VtKGBEZWxpdmVyaWVzIGRlbGV0ZWRgLG5hLnJtID0gVFJVRSkpICU+JSANCm11dGF0ZShwZXJjZW50ID0gcm91bmQoVG90YWwvc3VtKFRvdGFsKSoxMDApLGxhYmVsID0gcGFzdGUwKFRvdGFsLCIgIiwiKCIscGVyY2VudCwiJSIsKCIpIikpKQ0KdG90YWxjYXNlcyA8LSBwYXN0ZTAoIlRvdGFsIGNhc2VzOiAiLHN1bShtaXNzcmVwb3J0JFRvdGFsKSkNCm1pc3NyZXBvcnQkYFR5cGUgb2YgY2FzZXNgIDwtIHJlb3JkZXIobWlzc3JlcG9ydCRgVHlwZSBvZiBjYXNlc2AsIG1pc3NyZXBvcnQkVG90YWwpDQpnZ3Bsb3QobWlzc3JlcG9ydCxhZXMoeCA9IGBUeXBlIG9mIGNhc2VzYCx5ID0gVG90YWwpKSsgZ2VvbV9iYXIoc3RhdCA9ICJpZGVudGl0eSIsZmlsbD0iIzQyZmZlNiIpKw0KICB0aGVtZSh0ZXh0PWVsZW1lbnRfdGV4dChmYW1pbHk9IlJvYm90byBDb25kZW5zZWQiKSkrDQogIGdlb21fdGV4dChhZXMobGFiZWw9bGFiZWwsIGhqdXN0ID0gLSAwLjEsZmFtaWx5PSJSb2JvdG8gQ29uZGVuc2VkIiksY29sb3I9ImJsYWNrIixzaXplPTMpKyANCiAgZ2d0aXRsZShwZXJpb2Qsc3VidGl0bGUgPSB0b3RhbGNhc2VzKSsgDQogIGxhYnMoeD0iIiwgeT0iTnVtYmVyIG9mIG1pcy1yZXBvcnRpbmciKSsNCiAgc2NhbGVfeV9jb250aW51b3VzKGJyZWFrcyA9IHNlcSgwLDU1MCwxMDApLGxpbWl0ID0gYygwLCA1NTApKSsNCiAgIGNvb3JkX2ZsaXAoKSsNCiAgbXlfdGhlbWUoKQ0KYGBgDQoNCg0K</div>
 
 
 
